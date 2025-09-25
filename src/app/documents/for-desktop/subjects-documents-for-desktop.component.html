@@ -1,0 +1,101 @@
+<h1 class="titleTextInterface text-application">Documents</h1>
+
+<br>
+
+<div class="row">
+
+    <div class="col-md-6">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-label>Subject</mat-label>
+            <mat-select name="subjectDocumentSelectedId" class="text-application" [(ngModel)]="subjectDocumentSelectedKey" (selectionChange)="getAllSubjectsDocuments()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let subjectDocuments of subjectDocumentsListForSelect" [value]="subjectDocuments.key">
+                    <span class="text-application">{{subjectDocuments.SubjectDocumentsName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6">
+        <button 
+            type="button" 
+            (click)="newSubjectDocuments()" 
+            mat-mini-fab 
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div> 
+
+</div>
+
+<div class="row">
+
+    <div *ngFor="let subjectDocuments of (subjectdocumentsList | paginate: { itemsPerPage: itemsPerPage , currentPage: p })" class="mx-auto my-3" [ngClass]="innerWidth < 1366 || innerWidth == 1366 ? 'col-md-4' : 'col-md-3'">
+
+        <mat-card class="text-application">
+
+            <mat-card-header>
+                <mat-card-title style="margin-top: 20px;font-size: larger;">{{ subjectDocuments.SubjectDocumentsName }}</mat-card-title>
+            </mat-card-header>
+
+                <button 
+                    type="button"
+                    mat-button
+                    [matMenuTriggerFor]="menu" 
+                    class="style-button text-application">
+                    <mat-icon style="color: #07609b">calendar_view_day</mat-icon>
+                    Actions
+                </button>
+
+                <mat-menu #menu="matMenu" class="my-menu" xPosition="before">
+
+                    <button
+                        mat-menu-item 
+                        class="text-application"
+                        (click)="editSubjectDocuments(subjectDocuments)">
+                        <mat-icon style="color: #9C27B0">edit</mat-icon>
+                        Edit
+                    </button>
+
+                    <button
+                        mat-menu-item 
+                        class="text-application"
+                        (click)="extractDocument(subjectDocuments)">
+                        <mat-icon style="color: #07949b">remove_red_eye</mat-icon>
+                        استخراج
+                    </button>
+
+                    <button
+                        mat-menu-item 
+                        class="text-application"
+                        (click)="renewalDocument(subjectDocuments)">
+                        <mat-icon style="color: #07949b">remove_red_eye</mat-icon>
+                        تجديد
+                    </button>
+
+                    <button
+                        mat-menu-item 
+                        class="text-application"
+                        (click)="deleteSubjectDocuments(subjectDocuments.key)"
+                        [disabled]="subjectDocuments.haveDocuments">
+                        <mat-icon style="color: #f44336;">delete</mat-icon>
+                        <span>Delete</span>
+                    </button>
+
+                </mat-menu> 
+
+        </mat-card>
+
+    </div>
+
+</div>
+
+<br>
+
+<div *ngIf="subjectdocumentsList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="subjectdocumentsList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>

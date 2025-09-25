@@ -1,0 +1,37 @@
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+
+@media screen and (max-width: 567px) {
+  .card-text {
+    margin-bottom: 0.5em;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  row-gap: 0px;
+}
+
+.card-img-top {
+  height: 16rem;
+}
+
+.gridForLegend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.pictureFile {
+  border: 1px solid #4d4c4c;
+  height: 500px;
+  width: 100%;
+  color: coral;
+  font-weight: bold;
+  background-size: cover;
+}

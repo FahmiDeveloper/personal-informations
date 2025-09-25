@@ -1,0 +1,263 @@
+<div class="container">
+    <div mat-dialog-title class="dialog-title">
+        <h3 *ngIf="!debt.key" mat-dialog-title class="text-application">New debt</h3>
+        <h3 *ngIf="debt.key" mat-dialog-title class="text-application">Edit debt</h3>
+    </div>
+
+    <mat-horizontal-stepper [linear] = "isLinear" #stepper>
+
+        <mat-step>
+            <ng-template matStepLabel><span class="text-application">First data</span></ng-template>
+
+            <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                <mat-grid-tile>Rest money</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox name="isRestMoney" [(ngModel)]="debt.isRestMoney" (ngModelChange)="checkAddRestMoney()" style="margin-top: 10px;"></mat-checkbox>
+                </mat-grid-tile>
+            </mat-grid-list>
+
+            <br>
+
+            <mat-grid-list cols="2" rowHeight="50px"  class="text-application" style="font-size: 20px;">
+                <mat-grid-tile>Debt to pay</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox name="debtForPay" [(ngModel)]="debt.debtForPay" (ngModelChange)="checkDebtForPay()" style="margin-top: 10px;"></mat-checkbox>
+                </mat-grid-tile>
+            </mat-grid-list>
+
+            <br>
+
+            <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                <mat-grid-tile>Debt to get</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox name="debtToGet" [(ngModel)]="debt.debtToGet" (ngModelChange)="checkDebtToGet()" style="margin-top: 10px;"></mat-checkbox>
+                </mat-grid-tile>
+            </mat-grid-list>
+
+            <br>
+            <div>
+                <button mat-button (click)="close()"><span class="text-application">Cancel</span></button>
+                <button mat-button matStepperNext><span class="text-application">Next</span></button>
+            </div>
+        </mat-step>
+
+        <mat-step>
+            <ng-template matStepLabel><span class="text-application">Second data</span></ng-template>
+
+            <div class="row">
+                <div [ngClass]="debt.placeId == 3 ? 'col-md-4' : 'col-md-6'">
+                    <mat-form-field color="accent" class="text-application" [ngStyle]="{'width': debt.placeId == 3 ? '150px' : '200px'}">
+                        <input matInput #input type="date" placeholder="Date" [(ngModel)]="debt.date" name="date" readonly>
+                    </mat-form-field>
+                </div>
+                <div [ngClass]="debt.placeId == 3 ? 'col-md-4' : 'col-md-6'">
+                    <mat-form-field color="accent" class="text-application" [ngStyle]="{'width': debt.placeId == 3 ? '150px' : '200px'}">
+                        <mat-select placeholder="Place" class="text-application" [(ngModel)]="debt.placeId" name="placeId">
+                            <mat-option *ngFor="let placeMoney of placesMoney" [value]="placeMoney.id" [hidden]="placeMoney.id == 5 && debt.isRestMoney">
+                                <span class="text-application">{{placeMoney.place}}</span>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div *ngIf="debt.placeId == 3" class="col-md-4">
+                    <mat-form-field color="accent" class="text-application" [ngStyle]="{'width': debt.placeId == 3 ? '150px' : '200px'}">
+                        <mat-select placeholder="Envelope for" class="text-application" [(ngModel)]="debt.envelopeId" name="envelopeId">
+                            <mat-option *ngFor="let envelope of envelopesList" [value]="envelope.id">
+                                <span class="text-application">{{envelope.envelopeFor}}</span>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <ng-container *ngIf="debt.isRestMoney">
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <input matInput #input type="text" placeholder="Rest Money" [(ngModel)]="debt.restMoney" name="restMoney">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <mat-select placeholder="Unit" [(ngModel)]="selectedUnit" name="selectedUnit" (selectionChange)="onSelectUnit()" class="text-application">
+                                <mat-option *ngFor="let unit of units" [value]="unit.unitName">
+                                    <span class="text-application">{{unit.unitName}}</span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="debt.debtForPay || debt.debtToGet">
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <input matInput #input type="text" placeholder="Debt" [(ngModel)]="debt.financialDebt" name="financialDebt">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <mat-select placeholder="Unit" [(ngModel)]="selectedUnit" name="selectedUnit" (selectionChange)="onSelectUnit()" class="text-application">
+                                <mat-option *ngFor="let unit of units" [value]="unit.unitName">
+                                    <span class="text-application">{{unit.unitName}}</span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </ng-container>
+            </div>
+
+            <div class="row">
+
+                <ng-container *ngIf="debt.isRestMoney">
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <textarea matInput #input type="text" placeholder="Note" [(ngModel)]="debt.note" name="note" rows="4" cols="80"></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6"></div>
+                </ng-container>
+
+                <ng-container *ngIf="debt.debtForPay">
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <input matInput #input type="text" placeholder="Creditor" [(ngModel)]="debt.creditor" name="creditor">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <textarea matInput #input type="text" placeholder="Note" [(ngModel)]="debt.note" name="note" rows="4" cols="80"></textarea>
+                        </mat-form-field>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="debt.debtToGet">
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <input matInput #input type="text" placeholder="Debtor" [(ngModel)]="debt.debtor" name="debtor">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field color="accent" class="text-application" style="width: 200px">
+                            <textarea matInput #input type="text" placeholder="Note" [(ngModel)]="debt.note" name="note" rows="4" cols="80"></textarea>
+                        </mat-form-field>
+                    </div>
+                </ng-container>
+            </div>    
+             
+            <br>
+            <div>
+                <button mat-button matStepperPrevious><span class="text-application">Back</span></button>
+                <button *ngIf="debt.isRestMoney" mat-button matStepperNext [disabled]="!debt.placeId || !debt.restMoney || !debt.note || (debt.placeId == 3 && !debt.envelopeId)"><span class="text-application">Next</span></button>
+                <button *ngIf="debt.debtForPay" mat-button matStepperNext [disabled]="!debt.financialDebt || !debt.creditor || !debt.note"><span class="text-application">Next</span></button>
+                <button *ngIf="debt.debtToGet" mat-button matStepperNext [disabled]="!debt.financialDebt || !debt.debtor || !debt.note"><span class="text-application">Next</span></button>
+            </div>
+        </mat-step>
+
+        <mat-step *ngIf="debt.debtForPay || debt.debtToGet">
+            <ng-template matStepLabel><span class="text-application">Third data</span></ng-template>
+
+            <ng-container *ngIf="debt.debtForPay">
+                <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                    <mat-grid-tile>Will pay this month</mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-checkbox
+                            name="toPayThisMonth"
+                            [(ngModel)]="debt.toPayThisMonth" 
+                            style="margin-left:30px;vertical-align: bottom;margin-top: 8px;" 
+                            (ngModelChange)="checkToPayThisMonth()">
+                        </mat-checkbox>
+                    </mat-grid-tile>
+                </mat-grid-list>
+    
+                <br>
+    
+                <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                    <mat-grid-tile>Will pay next month</mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-checkbox 
+                            name="toPayNextMonth" 
+                            [(ngModel)]="debt.toPayNextMonth" 
+                            style="margin-left:30px;vertical-align: bottom;margin-top: 8px;" 
+                            (ngModelChange)="checkToPayNextMonth()">
+                        </mat-checkbox>
+                    </mat-grid-tile>
+                </mat-grid-list>
+    
+                <br>
+    
+                <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                    <mat-grid-tile>Not to pay For Now</mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-checkbox 
+                            name="notToPayForNow" 
+                            [(ngModel)]="debt.notToPayForNow" 
+                            style="margin-left:30px;vertical-align: bottom;margin-top: 8px;" 
+                            (ngModelChange)="checkNotToPayForNow()">
+                        </mat-checkbox>
+                    </mat-grid-tile>
+                </mat-grid-list>
+            </ng-container>
+
+            <ng-container *ngIf="debt.debtToGet">
+                <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                    <mat-grid-tile>Will get this month</mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-checkbox 
+                            name="toGetThisMonth" 
+                            [(ngModel)]="debt.toGetThisMonth" 
+                            style="margin-left:30px;vertical-align: bottom;margin-top: 8px;" 
+                            (ngModelChange)="checkToGetThisMonth()">
+                        </mat-checkbox>
+                    </mat-grid-tile>
+                </mat-grid-list>
+    
+                <br>
+    
+                <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                    <mat-grid-tile>Will get next month</mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-checkbox 
+                            name="toGetNextMonth" 
+                            [(ngModel)]="debt.toGetNextMonth" 
+                            style="margin-left:30px;vertical-align: bottom;margin-top: 8px;" 
+                            (ngModelChange)="checkToGetNextMonth()">
+                        </mat-checkbox>
+                    </mat-grid-tile>
+                </mat-grid-list>
+    
+                <br>
+    
+                <mat-grid-list cols="2" rowHeight="50px" class="text-application" style="font-size: 20px;">
+                    <mat-grid-tile>Not to get For Now</mat-grid-tile>
+                    <mat-grid-tile>
+                        <mat-checkbox 
+                            name="notToGetForNow" 
+                            [(ngModel)]="debt.notToGetForNow" 
+                            style="margin-left:30px;vertical-align: bottom;margin-top: 8px;" 
+                            (ngModelChange)="checkNotToGetForNow()">
+                        </mat-checkbox>
+                    </mat-grid-tile>
+                </mat-grid-list>  
+            </ng-container>
+            
+            <br>
+            <div>
+                <button mat-button matStepperPrevious><span class="text-application">Back</span></button>
+                <button *ngIf="debt.debtForPay" mat-button matStepperNext [disabled]="!debt.toPayThisMonth && !debt.toPayNextMonth && !debt.notToPayForNow"><span class="text-application">Next</span></button>
+                <button *ngIf="debt.debtToGet" mat-button matStepperNext [disabled]="!debt.toGetThisMonth && !debt.toGetNextMonth && !debt.notToGetForNow"><span class="text-application">Next</span></button>
+            </div>
+        </mat-step>
+
+        <mat-step>
+           <ng-template matStepLabel><span class="text-application">Done</span></ng-template>
+           <span class="text-application">Details taken</span>
+            <br>
+           <div>
+              <button mat-button matStepperPrevious><span class="text-application">Back</span></button>
+              <button mat-button (click)="save()"><span class="text-application">Save</span></button>
+           </div>
+        </mat-step>
+
+    </mat-horizontal-stepper>
+</div>

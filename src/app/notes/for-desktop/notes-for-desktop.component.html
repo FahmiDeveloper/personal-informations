@@ -1,0 +1,185 @@
+<h1 class="titleTextInterface text-application">Notes</h1>
+
+<br>
+
+<div class="row">
+
+    <div class="col-md-2">
+        <mat-form-field class="text-application">
+            <mat-label>Keyword</mat-label>
+            <mat-select name="keywordSelected" class="text-application" [(ngModel)]="keywordSelected" (openedChange)="onSelectOpened($event)" (selectionChange)="getAllNotes()">
+                <input #searchInput class="input-search text-application" matInput type="text" name="keywordForSearch" (keyup)="filterOptions()" [(ngModel)]="keywordForSearch"/>
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let keyword of keywordsList" [value]="keyword">
+                    <span class="text-application">{{keyword}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-2">
+        <mat-checkbox name="showCodeUsed" [(ngModel)]="showCodeUsed" (ngModelChange)="getAllNotes()" class="mat-checkbox-layout" style="margin-top: 8%;">
+            <span class="text-application">Code used</span>
+        </mat-checkbox>
+    </div>
+
+    <div class="col-md-2" *ngIf="showCodeUsed">
+        <mat-form-field class="text-application" style="margin-top: 0.3rem;">
+            <mat-label>Content code</mat-label>
+            <input matInput type="text" name="contentCode" (keyup)="getAllNotes()" [(ngModel)]="contentCode"/>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-2" *ngIf="showCodeUsed">
+        <button
+            mat-flat-button 
+            (click)="showContentCodeList(contentCodeList)" 
+            class="text-application"
+            style="position: absolute;top: 50%;transform: translateY(-50%);background: #263238;color: white;">
+            Content code list
+        </button>
+    </div>
+
+    <div [ngClass]="showCodeUsed ? 'col-md-4' : 'col-md-8'">
+        <button 
+            type="button" 
+            (click)="newNote()" 
+            mat-mini-fab 
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>
+
+</div>
+
+<br>
+
+<div *ngIf="!showCodeUsed" class="example-list">
+
+    <p class="empty-label text-application" *ngIf="notesList?.length === 0">Empty list</p>
+
+    <div class="example-box" *ngFor="let note of (notesList | paginate: { itemsPerPage: 8 , currentPage: p })" (contextmenu)="onRightClick($event, note)">
+        <span class="text-application">
+            <span style="font-size: x-large;">
+                {{ note.contentNote }}
+            </span>    
+        </span>
+    </div>
+
+</div>
+
+<div 
+    style="visibility: hidden; position: fixed;" 
+    [style.left]="menuTopLeftPosition.x" 
+    [style.top]="menuTopLeftPosition.y" 
+    [matMenuTriggerFor]="rightMenu">
+</div> 
+    
+<mat-menu #rightMenu="matMenu"> 
+
+    <ng-template matMenuContent let-note="note">
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="editNote(note)"
+        class="text-application">
+        <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+        <span>Edit</span>
+    </button>
+
+    <button
+        mat-menu-item 
+        class="text-application"
+        (click)="copyText(note.contentNote)">
+        <mat-icon style="color: black">file_copy</mat-icon>
+        Copy
+    </button>
+
+    <button
+        *ngIf="note.path"
+        mat-menu-item 
+        class="text-application"
+        (click)="viewPath(note.path)">
+        <mat-icon style="color: #3f51b5">remove_red_eye</mat-icon>
+        View
+    </button>
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="deleteNote(note.key)"
+        class="text-application">
+        <mat-icon style="color: #f44336;">delete</mat-icon>
+        <span>Delete</span>
+    </button>  
+
+    </ng-template> 
+
+</mat-menu>
+
+<br *ngIf="!showCodeUsed">
+
+<div *ngIf="!showCodeUsed && notesList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<ng-container *ngIf="showCodeUsed">
+    <div class="row">
+        <div *ngFor="let note of notesList" class="col-md-6 code-example">
+            <div class="code-header">
+              <h3 class="text-application">{{ note.contentCode }}</h3>
+              <button class="edit-btn text-application" (click)="editNote(note)">Edit</button>
+              &nbsp;
+              <button class="delete-btn text-application" (click)="deleteNote(note.key)">Delete</button>
+              &nbsp;
+              <button class="copy-btn text-application" 
+                (click)="copyText(note.typescriptCode ? note.typescriptCode : note.htmlCode ? note.htmlCode : note.javaCode ? note.javaCode : note.cssCode ? note.cssCode : note.otherCode)">Copy
+                </button>
+            </div>
+            <pre *ngIf="note.typescriptCode">
+                <code >{{ note.typescriptCode }}</code>             
+            </pre>
+            <pre *ngIf="note.htmlCode">
+                <code >{{ note.htmlCode }}</code>            
+            </pre>
+            <pre *ngIf="note.javaCode">             
+                <code >{{ note.javaCode }}</code>
+            </pre>
+            <pre *ngIf="note.cssCode">               
+                <code >{{ note.cssCode }}</code>
+            </pre>
+            <pre *ngIf="note.otherCode">            
+                <code >{{ note.otherCode }}</code>
+            </pre>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <p class="empty-label text-application" *ngIf="notesList?.length === 0">Empty list</p>
+    </div>
+</ng-container>
+
+<ng-template #contentCodeList>
+
+    <div mat-dialog-title class="dialog-title">
+        <h3 class="text-application">Content code list</h3>
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div *ngIf="codeUsedContentList.length > 0" class="example-list scroll-style">
+        <div class="example-box" *ngFor="let codeUsedContent of codeUsedContentList">
+          
+            <span
+                class="text-application" 
+                style="font-size: x-large;cursor: pointer;text-align: right;" 
+                (click)="copyText(codeUsedContent)">
+                {{ codeUsedContent }}
+            </span>
+            
+        </div>
+    </div>
+
+</ng-template>

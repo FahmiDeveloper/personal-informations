@@ -1,0 +1,1 @@
+export * from './note-form-for-tablet.component';

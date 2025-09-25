@@ -1,0 +1,72 @@
+<h1 class="titleTextInterface text-application">To Do List</h1>
+
+<br>
+
+<div class="row">
+	<div class="col-md-12">
+		<mat-checkbox *ngIf="isMobile || isTablet" [(ngModel)]="dragIsDisabled">
+			<span *ngIf="dragIsDisabled">Allow drag</span>
+			<span *ngIf="!dragIsDisabled">Disable drag</span>
+		</mat-checkbox>
+		<button type="button" (click)="addTodo()" mat-mini-fab
+			[ngStyle]="{'background': isMobile ? '#004a9f' : '#263238'}" style="float: right;">
+			<mat-icon style="color: white;">add</mat-icon>
+		</button>
+	</div>
+</div>
+
+<br>
+
+<div class="todolist-style overlay-panel" [ngStyle]="{'max-height': isDesktop ? '750px' : '425px'}">
+	<div cdkDropList (cdkDropListDropped)="drop($event)">
+		<ng-container *ngIf="isDesktop">
+			<div *ngFor="let todo of todos" cdkDrag style="cursor: grab;" >
+				<mat-card class="todo-task-card" (click)="editTodo(todo)"
+				    [ngStyle]="{'background': todo.range == 'Today' ? 'linear-gradient(270deg, #d1ecd1, #cce4d4, #bee0c8)'
+						: checkPassedTask(todo.range) ? 'linear-gradient(270deg, rgb(235 146 139), rgb(235 146 139), rgb(235 146 139))'
+						:''
+					}">
+					<mat-card-content class="task-container">			
+						<div *ngIf="todo.editingTaskId === todo.id" class="task-details text-application">
+							<span [class.completed]="todo.completed" style="font-size: 20px;">{{ todo.title }}</span>
+							<div class="date-actions">
+								<small *ngIf="todo.range == todo.date" class="date" style="font-size: 18px;">📅 {{ todo.range | date:'dd/MM/yyyy' }}</small>
+								<small *ngIf="todo.range !== todo.date" class="date"  style="font-size: 18px;">📅 {{ todo.range }}</small>
+								<div class="actions">
+									<mat-icon mat-icon-button color="warn" style="cursor: pointer !important;"
+										(click)="deleteTodo(todo.id);$event.stopPropagation()">delete
+									</mat-icon>
+								</div>
+							</div>
+						</div>
+					</mat-card-content>
+				</mat-card>
+			</div>
+		</ng-container>
+
+		<ng-container *ngIf="isTablet || isMobile">
+			<div *ngFor="let todo of todos" cdkDrag [cdkDragDisabled]="dragIsDisabled">
+				<mat-card class="todo-task-card" (click)="editTodo(todo)"
+				    [ngStyle]="{'background': todo.range == 'Today' ? 'linear-gradient(270deg, #d1ecd1, #cce4d4, #bee0c8)'
+						: checkPassedTask(todo.range) ? 'linear-gradient(270deg, rgb(235 146 139), rgb(235 146 139), rgb(235 146 139))'
+						:''
+					}">
+					<mat-card-content class="task-container">
+						<div *ngIf="todo.editingTaskId === todo.id" class="task-details text-application">
+							<span [class.completed]="todo.completed" style="font-size: 14px;font-weight: 700;">{{ todo.title }}</span>
+							<div class="date-actions">
+								<small *ngIf="todo.range == todo.date" class="date" style="font-size: 12px;">📅 {{ todo.range | date:'dd/MM/yyyy' }}</small>
+								<small *ngIf="todo.range !== todo.date" class="date" style="font-size: 12px;">📅 {{ todo.range }}</small>
+								<div class="actions">
+									<mat-icon mat-icon-button color="warn"
+										(click)="deleteTodo(todo.id);$event.stopPropagation()">delete
+									</mat-icon>
+								</div>
+							</div>
+						</div>
+					</mat-card-content>
+				</mat-card>
+			</div>
+		</ng-container>
+	</div>
+</div>

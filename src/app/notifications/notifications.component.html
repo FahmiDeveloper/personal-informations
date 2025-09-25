@@ -1,0 +1,83 @@
+<div class="notification-container text-application">
+  <ng-container *ngIf="isDesktop || isTablet">
+    <div class="notification-header">
+      <h2>Notifications</h2>
+      <span *ngIf="allNotifications.length !== 0" class="notification-not-done">
+        <mat-checkbox name="showNotDone" [(ngModel)]="showNotDone" (ngModelChange)="getAllNotifications()" class="mat-checkbox-layout">
+          <span class="text-application">Not done</span>
+        </mat-checkbox>
+      </span>
+      <div *ngIf="allNotifications.length !== 0" class="search-container">
+        <div class="normal-search">
+          <input type="text" class="search text-application" name="content" placeholder="Search..." (keyup)="getAllNotifications()" [(ngModel)]="content">
+          <i class="far fa-search search-icon"></i>
+      </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="isMobile">
+    <div class="notification-header">
+      <h2>Notifications</h2>
+      <span *ngIf="allNotifications.length !== 0" class="notification-not-done">
+        <mat-checkbox name="showNotDone" [(ngModel)]="showNotDone" (ngModelChange)="getAllNotifications()" class="mat-checkbox-layout">
+          <span class="text-application">Not done</span>
+        </mat-checkbox>
+      </span>  
+    </div>
+    <div *ngIf="allNotifications.length !== 0" class="search-container">
+      <div class="normal-search">
+        <input type="text" class="search text-application" name="content" placeholder="Search..." (keyup)="getAllNotifications()" [(ngModel)]="content">
+        <i class="far fa-search search-icon"></i>
+      </div>
+    </div>
+  </ng-container>
+  <ul class="notification-list">
+    <li class="notification-item" *ngFor="let notification of (notificationsList | paginate: { itemsPerPage: 10 , currentPage: p })">
+      <div class="notification-icon">
+        <i *ngIf="notification.reminderForId == 1" class="fa fa-film"></i>
+          <i *ngIf="notification.reminderForId == 2" class="fa fa-rocket"></i>
+          <i *ngIf="notification.reminderForId == 3" class="fa fa-television"></i>
+          <i *ngIf="notification.reminderForId == 4" class="fa fa-sticky-note"></i>
+          <i *ngIf="notification.reminderForId == 5" class="fa fa-clock-o"></i>
+          <i *ngIf="notification.reminderForId == 6" class="fa fa-calendar"></i>
+          <i *ngIf="notification.reminderForId == 7" class="fa fa-money"></i>
+          <i *ngIf="notification.reminderForId == 8" class="fa fa-file"></i>
+          <i *ngIf="notification.reminderForId == 9" class="fa fa-unlock-alt"></i>
+          <i *ngIf="notification.reminderForId == 10" class="fa fa-plus-square"></i>
+          <i *ngIf="notification.reminderForId == 11" class="fa fa-file"></i>
+          <i *ngIf="notification.reminderForId == 12" class="fa fa-bell"></i>
+      </div>
+      <div class="notification-content">
+        <span class="notification-title">
+          <span *ngIf="notification.reminderForId == 1">Movie</span>
+          <span *ngIf="notification.reminderForId == 2">Anime</span>
+          <span *ngIf="notification.reminderForId == 3">Serie</span>
+          <span *ngIf="notification.reminderForId == 4">Note</span>
+          <span *ngIf="notification.reminderForId == 5">Clocking</span>
+          <span *ngIf="notification.reminderForId == 6">Expiration</span>
+          <span *ngIf="notification.reminderForId == 7">Debt</span>
+          <span *ngIf="notification.reminderForId == 8">File</span>
+          <span *ngIf="notification.reminderForId == 9">Password</span>
+          <span *ngIf="notification.reminderForId == 10">Medication</span>
+          <span *ngIf="notification.reminderForId == 11">Document</span>
+          <span *ngIf="notification.reminderForId == 12">Other</span>&nbsp;
+          <i *ngIf="notification.notifSubjectDone == true" class="fa fa-check" style="color: green;" aria-hidden="true"></i>
+          <i *ngIf="notification.notifSubjectDone == false" class="fa fa-times" style="color: red;" aria-hidden="true"></i>
+        </span>
+        <span class="notification-message">{{ notification.subject }}</span>
+        <span class="notification-date-time">
+          {{notification.date | date:'dd/MM/yyyy'}}&nbsp;{{notification.time}}<br>
+          <span class="notification-time">
+            {{ getTimeAgo(notification.formatDate) }}
+          </span>
+        </span>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<br *ngIf="notificationsList.length !== 0">
+
+<div *ngIf="notificationsList.length !== 0" class="pagination">
+  <pagination-controls (pageChange)="p = $event;OnPageChange()" [responsive]="isMobile ? true : false"></pagination-controls>
+</div>

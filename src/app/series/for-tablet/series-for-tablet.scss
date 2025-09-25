@@ -1,0 +1,38 @@
+.widthInput {
+  width: 90% !important;
+}
+
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+
+.dialog-responsive {
+  width: 40%;
+}
+
+@media only screen and (max-width: 760px) {
+  .dialog-responsive {
+    width: 100%;
+  }
+}
+
+.grid-portrait {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  row-gap: 0px;
+}
+
+.grid-landscape {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  row-gap: 0px;
+}
+
+.card-img-top {
+  height: 16rem;
+}

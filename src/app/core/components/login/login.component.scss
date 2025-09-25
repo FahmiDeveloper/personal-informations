@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  justify-content: center;
+  margin: 45px 0px;
+}
+
+.error {
+  padding: 16px;
+  color: red;
+  font-weight: 900;
+}
+
+.login-container {
+  margin-top: 50px;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  display: flex;
+}
+
+form {
+  width: 100%;
+}
+
+.login-content {
+  width: 400px;
+  display: block;
+  margin: 0 auto;
+}
+
+.mat-form-field {
+  width: 100%;
+  display: block;
+}

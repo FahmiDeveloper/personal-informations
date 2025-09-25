@@ -1,0 +1,50 @@
+<div mat-dialog-title class="dialog-title">
+  <h3 *ngIf="!reminder.key" mat-dialog-title class="text-application">New reminder</h3>
+  <h3 *ngIf="reminder.key" mat-dialog-title class="text-application">Edit reminder</h3>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+  <form (ngSubmit)="save()" #f="ngForm">
+
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Date</span></mat-placeholder>
+          <input matInput #input type="date" [(ngModel)]="reminder.date" name="date" class="text-application">
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Time</span></mat-placeholder>
+          <input matInput #input type="time" [(ngModel)]="reminder.time" name="time" class="text-application">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field color="accent" class="text-application">
+          <mat-select placeholder="Subject" [(ngModel)]="reminder.reminderFor" name="reminderFor" class="text-application">
+            <mat-option *ngFor="let remFor of reminderForList" [value]="remFor.id">
+                <span class="text-application">{{remFor.reminderForName}}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>     
+      <div class="col-md-6"></div>
+    </div>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Subject</span></mat-placeholder>
+      <textarea matInput #input type="text" [(ngModel)]="reminder.subject" name="subject" rows="4" cols="40" class="text-application"></textarea>
+    </mat-form-field>
+
+    <div class="row justify-content-center" mat-dialog-actions>
+      <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1" style="background:#FF5722;color: white;" class="text-application">Save</button>
+      <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;" class="text-application">Cancel</button>
+    </div>
+
+  </form>
+</div>
+</div>

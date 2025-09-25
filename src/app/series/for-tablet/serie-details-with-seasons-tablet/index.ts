@@ -1,0 +1,1 @@
+export * from './serie-details-with-seasons-tablet.component';

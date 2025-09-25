@@ -1,0 +1,55 @@
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+   
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.pictureFile {
+  border: 1px solid #4d4c4c;
+  height: 700px;
+  width: 100%;
+  color: coral;
+  font-weight: bold;
+  background-size: cover;
+}
+
+.dialog-responsive {
+  width: 40%;
+}
+
+@media only screen and (max-width: 760px) {
+  .dialog-responsive {
+      width: 100%;
+  }
+}
+
+.medication-image {
+  width: 60%;
+  background-size: cover;
+  border-radius: 5%;
+  cursor: pointer;
+}
+
+.grid-portrait {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  row-gap: 0px;
+}
+
+.grid-landscape {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  row-gap: 0px;
+}
+
+.card-img-top {
+  height: 16rem;
+}

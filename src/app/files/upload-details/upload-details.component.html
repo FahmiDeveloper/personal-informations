@@ -1,0 +1,299 @@
+<div *ngIf="filteredFiles?.length > 0" class="example-list">
+  
+  <ng-container *ngIf="isDesktop">
+
+    <div class="example-box" *ngFor="let file of (filteredFiles | paginate: { itemsPerPage: itemsPerPage , currentPage: p })" (contextmenu)="onRightClick($event, file)">
+
+      <span
+        class="text-application add-three-dots"
+        style="font-size: x-large;cursor: pointer;" 
+        (click)="copyText(file)"
+        [matTooltip]="file.fileNameWithoutType.length > 65 ? file.fileNameWithoutType : ''"
+        matTooltipClass="data-tooltip">
+        {{ file.fileNameWithoutType }}
+      </span>    
+  
+    </div>
+
+  </ng-container>
+
+  <ng-container *ngIf="isTablet || isMobile">
+
+    <div class="example-box" *ngFor="let file of (filteredFiles | paginate: { itemsPerPage: itemsPerPage , currentPage: p })" (click)="openMenuTrigger($event, file)">
+
+      <span
+        class="text-application add-three-dots"
+        style="font-size: x-large;cursor: pointer;">
+        {{ file.fileNameWithoutType }}
+      </span>    
+  
+    </div>
+
+  </ng-container>
+
+</div>
+
+<div 
+  style="visibility: hidden; position: fixed;" 
+  [style.left]="menuTopLeftPosition.x" 
+  [style.top]="menuTopLeftPosition.y" 
+  [matMenuTriggerFor]="rightMenu">
+</div> 
+
+<mat-menu #rightMenu="matMenu"> 
+
+  <ng-template matMenuContent let-file="file">
+
+    <button
+      *ngIf="!checkIsImage(file.name) && !isZip(file.name)"
+      type="button"
+      mat-menu-item 
+      (click)="viewOtherFileUpload(file, showOtherFile)"
+      class="text-application">
+      <mat-icon style="color: #283593;">remove_red_eye</mat-icon>
+      <span>View</span>
+    </button>
+
+    <button
+      *ngIf="checkIsImage(file.name)"
+      type="button"
+      mat-menu-item               
+      (click)="viewFilePictureUpload(file, showPicture)"
+      class="text-application">
+      <mat-icon style="color: #283593;">remove_red_eye</mat-icon>
+      <span>View</span>
+    </button>
+
+    <button
+      *ngIf="isZip(file.name)"
+      type="button"
+      mat-menu-item 
+      (click)="showZipFile(file, viewZipFile)"
+      class="text-application">
+      <mat-icon style="color: #283593;">remove_red_eye</mat-icon>
+      <span>View</span>
+    </button>
+
+    <button
+      type="button"
+      mat-menu-item 
+      (click)="downloadFile(file)"
+      class="text-application">
+      <mat-icon style="color: #2E7D32;">cloud_download</mat-icon>
+      <span>Download</span>
+    </button>
+
+    <button
+      *ngIf="isMobile && (checkIsImage(file.name) || isTxt(file.name)  || isPdf(file.name))"
+      type="button"
+      mat-menu-item 
+      (click)="shareFile(file)"
+      class="text-application">
+      <mat-icon style="color: #ff4081;">share</mat-icon>
+      <span>Share</span>             
+    </button> 
+
+    <button
+      *ngIf="isTablet"
+      type="button"
+      mat-menu-item 
+      (click)="copyText(file)"
+      class="text-application">
+      <mat-icon style="color: black;">file_copy</mat-icon>
+      <span>Copy</span>                 
+    </button> 
+
+    <button
+      type="button"
+      mat-menu-item
+      (click)="deleteFile(file)" 
+      class="text-application">
+      <mat-icon style="color: #f44336;">delete</mat-icon>
+      <span>Delete</span>
+    </button> 
+
+  </ng-template> 
+
+</mat-menu>
+
+<br>
+
+<div *ngIf="filteredFiles?.length !== 0" class="pagination">
+  <pagination-controls (pageChange)="p = $event;" [responsive]="true"></pagination-controls>
+</div>
+
+<div *ngIf="filteredFiles?.length == 0" class="row justify-content-center no-results text-application">
+  No results
+</div>
+
+<ng-template #showOtherFile>
+
+  <div mat-dialog-title class="dialog-title">
+    <h2 class="text-application">{{ FileName }}</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="row">        
+    <ngx-doc-viewer
+      *ngIf="urlFile" 
+      [url]="urlFile" 
+      viewer="google" 
+      [ngClass]="isMobile ? 'otherFileMobile' : 'otherFile'">
+    </ngx-doc-viewer>
+  </div>
+
+</ng-template>
+
+
+<ng-template #showPicture>
+
+  <div mat-dialog-title class="dialog-title">
+    <h2 class="text-application">{{ FileName }}</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="row">
+    <img *ngIf="pictureFile" [src]='pictureFile' [ngClass]="isMobile ? 'pictureFileMobile' : 'pictureFile'">
+  </div>       
+
+</ng-template>
+
+
+<ng-template #viewZipFile>
+
+  <div mat-dialog-title class="dialog-title">
+    <h2 class="text-application">{{ FileName }}</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="center">
+    <h4 class="text-application" style="text-align: center;">Extract files in progress...</h4>
+  </div>
+
+  <div *ngIf="!isLoading">
+
+    <span *ngFor="let file of $zipFiles | async" class="text-application">
+
+      <span *ngIf="file.fileName">
+
+        {{file.fileName}}
+
+        <span style="font-size: 14px;color:blue;">({{file.date | date: 'dd/MM/yyyy'}})</span>
+
+        <br>
+
+        <button
+          type="button"
+          mat-icon-button
+          color="accent"
+          (click)="viewFileFromZip(file, showContentFilesFromZip)">
+          <i class="fa fa-eye" aria-hidden="true"></i>
+        </button>
+        
+        &nbsp;
+
+        <button
+          type="button"
+          mat-icon-button
+          color="primary"
+          (click)="saveFileFromZip(file)">
+          <i class="fa fa-download" aria-hidden="true"></i>
+        </button> 
+
+      </span>
+
+      <br *ngIf="file.fileName">
+
+      <mat-divider *ngIf="file.fileName"></mat-divider>
+
+    </span>
+  </div>
+  
+</ng-template>
+
+<ng-template #showContentFilesFromZip>
+
+  <div mat-dialog-title class="dialog-title">
+    <h2 class="text-application">{{ fileExtractedName }}</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+
+  <img *ngIf="checkIsImage(fileExtractedName)" [src]='srcExtractedImage' [ngClass]="isMobile ? 'pictureFileMobile' : 'pictureFile'">
+
+  <pre 
+    *ngIf="isTxt(fileExtractedName)"
+    style="font-weight: bold;">
+    {{contentTxtFile}}
+  </pre>
+
+  <pdf-viewer
+    *ngIf="isPdf(fileExtractedName)"
+    [src]="contentPdfFile"      
+    [rotation]="0"
+    [original-size]="false"
+    [show-all]="true"
+    [fit-to-page]="false"
+    [zoom]="1"
+    [stick-to-page]="false"
+    [render-text]="true"
+    [external-link-target]="'blank'"
+    [autoresize]="true"
+    style="width: 100%; height: 600px;">
+  </pdf-viewer>
+
+  <div *ngIf="isExcel(fileExtractedName) && isMobile" class="scroll">
+    <table *ngIf="isExcel(fileExtractedName)" id="TheTable" class="ExcelTable2007">
+      <thead #header>
+        <tr>
+          <th style="background-color:#d9d9d9;"></th>
+          <th *ngFor="let headValue of headData">
+            {{headValue}}
+          </th>
+        </tr>
+      </thead>
+      <tbody #container>
+        <tr *ngFor="let row of data; let e =index">
+          <td style="background-color:#d9d9d9;">{{e+1}}</td>
+          <td *ngFor="let val of headData; let i =index">
+            {{row[i] || ' '}} 
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="isExcel(fileExtractedName) && !isMobile">
+    <table *ngIf="isExcel(fileExtractedName)" id="TheTable" class="ExcelTable2007">
+      <thead #header>
+        <tr>
+          <th style="background-color:#d9d9d9;"></th>
+          <th *ngFor="let headValue of headData">
+            {{headValue}}
+          </th>
+        </tr>
+      </thead>
+      <tbody #container>
+        <tr *ngFor="let row of data; let e =index">
+          <td style="background-color:#d9d9d9;">{{e+1}}</td>
+          <td *ngFor="let val of headData; let i =index">
+            {{row[i] || ' '}} 
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="isWord(fileExtractedName) && isMobile" id="contentWord" class="scroll"></div>
+
+  <div *ngIf="isWord(fileExtractedName) && !isMobile" id="contentWord"></div>
+
+</ng-template>

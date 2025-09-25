@@ -1,0 +1,56 @@
+<div mat-dialog-title class="dialog-title">
+    <h3 *ngIf="!link.key" mat-dialog-title class="text-application">New link</h3>
+    <h3 *ngIf="link.key" mat-dialog-title class="text-application">Edit link</h3>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <form (ngSubmit)="save()" #f="ngForm">
+
+            <mat-grid-list *ngIf="link.key" cols="4" rowHeight="3:1" class="text-application" style="font-size: 20px;">
+      
+                <mat-grid-tile>Angular</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox 
+                        name="angularContext" 
+                        [(ngModel)]="angularContext" 
+                        (ngModelChange)="checkAngularContext()"
+                        style="margin-top: 10px;">
+                    </mat-checkbox>
+                </mat-grid-tile>
+                <mat-grid-tile>Other</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox 
+                        name="otherContext" 
+                        [(ngModel)]="otherContext"         
+                        (ngModelChange)="checkotherContext()"
+                        style="margin-top: 10px;">
+                    </mat-checkbox>
+                </mat-grid-tile>
+                  
+            </mat-grid-list>
+
+            <br *ngIf="link.key">
+
+            <mat-form-field color="accent" [ngStyle]="{'width': isMobile ? '305px' : '430px'}">
+                <mat-placeholder class="text-application"><span>Content</span></mat-placeholder>
+                <input matInput #input type="text" [(ngModel)]="link.content" name="content" required class="text-application">
+                <mat-error *ngIf="f.invalid" class="text-application">{{getErrorMessage()}}</mat-error>
+            </mat-form-field>
+
+            <br>
+    
+            <mat-form-field color="accent" [ngStyle]="{'width': isMobile ? '305px' : '430px'}">
+                <mat-placeholder class="text-application"><span>Path</span></mat-placeholder>
+                <input matInput #input type="text" [(ngModel)]="link.path" name="path" required class="text-application">
+                <mat-error *ngIf="f.invalid" class="text-application">{{getErrorMessage()}}</mat-error>
+            </mat-form-field>
+
+            <div class="row justify-content-center" mat-dialog-actions>
+                <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1" style="background:#FF5722;color: white;" class="text-application">Save</button>
+                <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;" class="text-application">Cancel</button>
+            </div>
+        
+        </form>
+    </div>
+</div>

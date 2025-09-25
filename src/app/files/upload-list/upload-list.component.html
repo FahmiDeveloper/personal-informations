@@ -1,0 +1,32 @@
+<div class="row">
+    <div class="col-md-4" *ngIf="!isMobile">
+        <mat-form-field class="widhtInput text-application">
+            <mat-label>Name</mat-label>
+            <input matInput #query type="text" name="queryNote" (input)="filter(query.value)"/>
+        </mat-form-field>
+    </div>
+    <div class="col-md-8" *ngIf="isMobile">
+        <mat-form-field class="widhtInput text-application" style="width: 200px;">
+            <mat-label>Name</mat-label>
+            <input matInput #query type="text" name="queryNote" (input)="filter(query.value)"/>
+        </mat-form-field>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+
+    <div class="col-md-12" *ngIf="!isMobile">
+        <app-upload-details 
+            [filteredFiles]='filteredFiles'
+            [isDesktop]="isDesktop"
+            [isTablet]="isTablet">
+        </app-upload-details>
+    </div>
+    
+    <div class="col-md-4" *ngIf="isMobile">
+        <app-upload-details [filteredFiles]='filteredFiles' [isMobile]="isMobile"></app-upload-details>
+    </div>
+    
+</div>

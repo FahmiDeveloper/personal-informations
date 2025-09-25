@@ -1,42 +1,22 @@
-<h1>{{title}}</h1>
-<ul>
-  <li *ngFor="let item of aufgaben">
-     {{item}}
-  </li>
-</ul>
+<ng-container *ngIf="!isMobile">
 
-<mat-slide-toggle>Toggle me!</mat-slide-toggle>
+    <app-sidenav *ngIf="isConnected" (onToggleSideNav)="onToggleSideNav($event)"></app-sidenav>
 
-<!-- Register -->
-<form (ngSubmit)="register()" *ngIf="!user">
-  <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
-  <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required />
-  <button type="submit">Register</button>
-</form>
+    <app-header
+        *ngIf="isConnected"
+        [collapsed]="isSideNavCollapsed"
+        [screenWidth]="screenWidth">
+    </app-header>
 
-<!-- Login -->
-<form (ngSubmit)="login()" *ngIf="!user">
-  <input type="email" [(ngModel)]="email" name="loginEmail" placeholder="Email" required />
-  <input type="password" [(ngModel)]="password" name="loginPassword" placeholder="Password" required />
-  <button type="submit">Login</button>
-</form>
+    <app-body
+        [collapsed]="isSideNavCollapsed"
+        [screenWidth]="screenWidth">
+    </app-body>
 
-<!-- Show logged in user -->
-<div *ngIf="user">
-  <p>✅ Logged in as: {{ user?.email }}</p>
-  <button (click)="logout()">Logout</button>
-</div>
+</ng-container>
 
-<div style="text-align:center; margin-top:50px;">
-  <h2>Upload File to Firestore</h2>
-  <input type="file" (change)="onFileSelected($event)" />
-  <button (click)="uploadFile()">Upload</button>
-</div>
+<ng-container *ngIf="isMobile">
 
-<div style="text-align:center; margin-top:20px;">
-  <h2>Images from Firestore</h2>
-  <div *ngFor="let img of images" style="margin:10px;">
-    <p>{{ img.name }}</p>
-    <img [src]="img.url" alt="{{ img.name }}" width="200"/>
-  </div>
-</div>
+    <app-mobile></app-mobile>
+    
+</ng-container>

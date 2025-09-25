@@ -1,0 +1,1 @@
+export * from './subject-documents-form-desktop.component';

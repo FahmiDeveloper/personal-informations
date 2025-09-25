@@ -1,0 +1,138 @@
+<h1 class="titleTextInterface text-application">Users</h1>
+ 
+<div class="row">
+    <div class="col-md-4">
+        <mat-form-field>
+            <mat-label>Email</mat-label>
+            <input matInput type="text" name="queryEmail" (keyup)="getAllUsers()" [(ngModel)]="queryEmail"/>
+        </mat-form-field>
+    </div>
+</div>
+
+<br>
+  
+<div class="example-container mat-elevation-z8">
+    <div class="example-table-container">
+        <table mat-table [dataSource]="dataSource">
+
+            <ng-container matColumnDef="picture">
+                <th mat-header-cell *matHeaderCellDef>Picture</th>
+                <td mat-cell *matCellDef="let element"> 
+                    <img mat-card-md-image src="/assets/pictures/NoImageAvailable.png">
+                    <span style="margin-left: 30px;">
+                       
+                        <mat-icon 
+                            *ngIf="element.roleMovies || element.roleAnimes || element.roleSeries || element.roleFiles || element.roleDebts" 
+                            aria-label="Edit"
+                            (click)="openModalPrivileges(element)" 
+                            style="color: #9C27B0">
+                            edit
+                        </mat-icon>
+
+                        <mat-icon 
+                            style="color: #f44336;margin-left: 25px;" 
+                            (click)="deleteUser(element.key)"
+                            aria-label="Delete">
+                            delete
+                        </mat-icon>
+
+                    </span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <span>Name:</span>&nbsp;
+                    <span style="cursor: pointer;">{{ element.name }}</span>
+                </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <span>Email:</span>&nbsp;
+                    <span>{{ element.email }}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="password">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <span>Password:</span>&nbsp;
+                    <span>{{ element.password }}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="connected">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <span>Connected:</span>&nbsp;
+                    <span>{{ element.isConnected }}</span>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="star">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let element"> 
+                    <button mat-icon-button [matMenuTriggerFor]="menu" [matMenuTriggerData]="{element:element}">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+    
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <div *ngIf="dataSource.data.length == 0" class="row justify-content-center no-results text-application">
+            No results
+        </div>
+    
+        <mat-paginator 
+            [pageSizeOptions]="[8]"
+            showFirstLastButtons 
+            aria-label="Select page of periodic elements"
+            (page)="OnPageChange($event)">
+        </mat-paginator>
+    </div>
+</div>
+  
+<mat-menu #menu="matMenu">
+    <ng-template matMenuContent let-currentUser="element">
+
+        <div (click)="$event.stopPropagation()">
+
+            <span mat-menu-item>
+                <mat-checkbox style="margin-left: 5px;" [(ngModel)]="currentUser.roleMovies"></mat-checkbox>&nbsp;&nbsp;
+                <span>Movies</span>
+            </span>
+
+            <span mat-menu-item>
+                <mat-checkbox style="margin-left: 5px;" [(ngModel)]="currentUser.roleAnimes"></mat-checkbox>&nbsp;&nbsp;
+                <span>Animes</span>
+            </span>
+
+            <span mat-menu-item>
+                <mat-checkbox style="margin-left: 5px;" [(ngModel)]="currentUser.roleSeries"></mat-checkbox>&nbsp;&nbsp;
+                <span>Series</span>
+            </span>
+
+            <span mat-menu-item>
+                <mat-checkbox style="margin-left: 5px;" [(ngModel)]="currentUser.roleFiles"></mat-checkbox>&nbsp;&nbsp;
+                <span>Files</span>
+            </span>
+
+            <span mat-menu-item>
+                <mat-checkbox style="margin-left: 5px;" [(ngModel)]="currentUser.roleDebts"></mat-checkbox>&nbsp;&nbsp;
+                <span>Debts</span>
+            </span>
+            
+        </div>
+
+        <button mat-menu-item (click)="changeRoleStatus(currentUser)" style="background: bisque;">
+            <span style="margin-left: 24px;">Apply</span>
+        </button>
+    </ng-template>
+</mat-menu>

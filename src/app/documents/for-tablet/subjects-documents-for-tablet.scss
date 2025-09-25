@@ -1,0 +1,30 @@
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+     
+.mat-form-field {
+  width: 100%;
+}
+
+::ng-deep .my-menu {
+  width: 100%;
+}
+
+.style-button{
+  min-width: unset!important;
+  display: table; 
+  margin: 0 auto;
+}
+
+.dialog-responsive {
+  width: 40%;
+}
+
+@media only screen and (max-width: 760px) {
+  .dialog-responsive {
+      width: 100%;
+  }
+}

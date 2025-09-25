@@ -1,0 +1,163 @@
+<h1 class="titleTextInterface text-application">Expirations</h1>
+
+<div class="row">
+    <div class="col-md-4">
+
+        <mat-form-field class="text-application">
+            <mat-label>Content</mat-label>
+            <input  matInput type="text" name="content" (keyup)="getAllExpirations()" [(ngModel)]="content"/>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-8">
+        <button 
+            type="button" 
+            (click)="newExpiration()" 
+            mat-mini-fab 
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>  
+
+</div>
+
+<br>
+
+<div class="row">
+
+    <div *ngFor="let expiration of (expirationsList | paginate: { itemsPerPage: 6 , currentPage: p })" class="mx-auto my-3 col-md-4">
+
+        <mat-card class="text-application example-card-tablet">
+
+            <mat-card-header style="height: 65px;">                    
+                <mat-card-title style="margin-top: 20px;font-weight: bold;font-size: 17px;">{{ expiration.contentName }}</mat-card-title>
+            </mat-card-header>
+            
+            <br>
+
+            <mat-card-content>
+
+                <mat-grid-list cols="12" rowHeight="35px">
+
+                    <mat-grid-tile colspan="4">Cost</mat-grid-tile>             
+                    <mat-grid-tile colspan="8">
+                        <span *ngIf="expiration.cost">{{ expiration.cost }}</span>
+                        <i *ngIf="!expiration.cost" class="fa fa-minus-circle" aria-hidden="true"></i>
+                    </mat-grid-tile>
+                    
+                    <br>
+
+                    <mat-grid-tile colspan="4">Start</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">{{ expiration.dateStart | date:'dd/MM/yyyy' }}</mat-grid-tile>
+                    
+                    <br>
+
+                    <mat-grid-tile colspan="4">Exp</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">{{ expiration.dateExpiration | date:'dd/MM/yyyy' }}</mat-grid-tile>
+                    
+                    <br>
+
+                    <mat-grid-tile colspan="4">Dur</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">{{ expiration.duration }}</mat-grid-tile><br>
+
+                    <mat-grid-tile colspan="4">
+                        <span *ngIf="expiration.isExpired" style="color: red;">Passed</span>
+                        <span *ngIf="!expiration.isExpired && !expiration.soonToExpire" style="color: green;">Rest</span>
+                        <span *ngIf="!expiration.isExpired && expiration.soonToExpire" style="color: #ff6900;">Rest</span>
+                    </mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <span *ngIf="expiration.isExpired" style="color: red;">{{ expiration.restdays }}</span>
+                        <span *ngIf="!expiration.isExpired && !expiration.soonToExpire" style="color: green;">{{ expiration.restdays }}</span>
+                        <span *ngIf="!expiration.isExpired && expiration.soonToExpire" style="color: #ff6900;">{{ expiration.restdays }}</span>
+                    </mat-grid-tile>
+
+                    <br>
+
+                    <mat-grid-tile colspan="4">Note</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <mat-icon *ngIf="expiration.note" style="color: black;" (click)="viewNote(expiration.note)">note</mat-icon>         
+                        <i *ngIf="!expiration.note" class="fa fa-minus-circle" aria-hidden="true"></i>
+                    </mat-grid-tile>
+
+                </mat-grid-list>
+
+            </mat-card-content>
+
+            <mat-card-actions>
+
+                <div class="row justify-content-center">
+
+                    <button 
+                        type="button"
+                        mat-button
+                        [matMenuTriggerFor]="menu" 
+                        class="style-button text-application">
+                        <mat-icon style="color: #07609b">calendar_view_day</mat-icon>
+                        Actions
+                    </button>
+
+                    <mat-menu #menu="matMenu" class="my-menu" xPosition="before">
+
+                        <button
+                            mat-menu-item 
+                            class="text-application"
+                            (click)="editExpiration(expiration)">
+                            <mat-icon style="color: #9C27B0">edit</mat-icon>
+                            Edit
+                        </button>
+
+                        <button
+                            mat-menu-item 
+                            class="text-application"
+                            (click)="deleteExpiration(expiration.key)">
+                            <mat-icon style="color: #f44336">delete</mat-icon>
+                            Delete
+                        </button>
+                        
+                    </mat-menu>
+
+                </div>
+
+            </mat-card-actions>
+
+        </mat-card>
+
+    </div>
+
+</div>
+
+<br *ngIf="expirationsList.length !== 0">
+
+<div *ngIf="expirationsList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="expirationsList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>
+
+<mat-menu #contextMenu="matMenu" xPosition="before">
+
+	<ng-template matMenuContent let-expiration="element">
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="editExpiration(expiration)"
+            class="text-application">
+            <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+            <span>Edit</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="deleteExpiration(expiration.key)"
+            class="text-application">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            <span>Delete</span>
+        </button>  
+
+	</ng-template>
+
+</mat-menu>

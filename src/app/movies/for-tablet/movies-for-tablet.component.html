@@ -1,0 +1,142 @@
+<h1 class="titleTextInterface text-application">Movies</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <mat-form-field class="widthInput text-application">
+            <mat-label>Name</mat-label>
+            <input matInput type="text" name="movieName" (keyup)="getAllMovies()" [(ngModel)]="movieName" />
+        </mat-form-field>
+    </div>
+    <div class="col-md-4">
+        <mat-form-field class="widthInput">
+            <mat-label class="text-application">Status</mat-label>
+            <mat-select class="text-application" name="statusId" [(ngModel)]="statusId"
+                (selectionChange)="getAllMovies()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let statusMovie of statusMovies" [value]="statusMovie.id">
+                    <span class="text-application">{{statusMovie.status}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="col-md-3">
+
+        <ng-container *ngIf="statusId">
+            <mat-form-field class="widthInput" *ngIf="statusId == 1">
+                <mat-select [(ngModel)]="optionSelected" name="optionSelected" class="text-application"
+                    (selectionChange)="getAllMovies()">
+                    <mat-option value=""></mat-option>
+                    <mat-option [value]="1" class="text-application">Not yet aired</mat-option>
+                    <mat-option [value]="2" class="text-application">{{nbrMoviesToCheckToday}}&nbsp;movie(s) to check
+                        Today</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-checkbox *ngIf="statusId == 3" name="dislike" [(ngModel)]="dislike" (ngModelChange)="getAllMovies()"
+                class="mat-checkbox-layout" style="margin-top: 10%;">
+                <span class="text-application">Dislike</span>
+            </mat-checkbox>
+        </ng-container>
+
+        <ng-container *ngIf="!statusId">
+            <mat-checkbox (change)="getAllMovies()" [(ngModel)]="showMoviesNotChecked" class="text-application"
+                style="margin-top: 1.3rem;">Not check ({{nbrMoviesNotChecked}})</mat-checkbox>
+        </ng-container>
+
+    </div>
+    <div class="col-md-1">
+        <button type="button" (click)="newMovie()" mat-mini-fab style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>
+</div>
+
+<br>
+
+<div [ngClass]="orientation == 'Portrait' ? 'grid-portrait' : 'grid-landscape'">
+    <div class="card" *ngFor="let movie of (moviesList | paginate: { itemsPerPage: itemsPerPage , currentPage: p })">
+        <img *ngIf="movie.imageUrl" [src]="movie.imageUrl" class="card-img-top img-fluid"
+            (click)="openMenuTrigger($event, movie)">
+        <img *ngIf="!movie.imageUrl" src="/assets/pictures/NoImageAvailable.png" class="card-img-top img-fluid"
+            (click)="openMenuTrigger($event, movie)">
+        <div class="card-body align-items-center d-flex justify-content-center text-center text-application">
+            <h5 class="card-title" style="cursor: pointer;" (click)="copyText(movie.nameMovie)">
+                {{ movie.nameMovie }}
+            </h5>
+        </div>
+    </div>
+</div>
+
+<div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
+    [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="rightMenu">
+</div>
+
+<mat-menu #rightMenu="matMenu">
+
+    <ng-template matMenuContent let-movie="movie">
+
+        <button *ngIf="!movie.part || (movie.part && movie.part > 1)" mat-menu-item class="text-application">
+            Status&nbsp;&nbsp;
+            <mat-icon *ngIf="movie.statusId == 1" style="color:goldenrod;">access_time</mat-icon>
+            <mat-icon *ngIf="movie.statusId == 2" style="color: red;">file_download</mat-icon>
+            <mat-icon *ngIf="movie.statusId == 3 && !movie.notLiked" style="color: green;">remove_red_eye</mat-icon>
+            <mat-icon *ngIf="movie.statusId == 4" style="color: red;">remove_red_eye</mat-icon>
+            <mat-icon *ngIf="movie.statusId == 5" style="color:#07609b;">search</mat-icon>
+            <mat-icon *ngIf="movie.notLiked" style="color: red;">thumb_down_alt</mat-icon>
+        </button>
+
+        <button *ngIf="movie.part && movie.part == 1" mat-menu-item class="text-application"
+            (click)="showDetailsMovie(movie)">
+            <mat-icon style="color: #a54403">view_list</mat-icon>
+            <span>Parts</span>
+        </button>
+
+        <button *ngIf="!movie.part || (movie.part && movie.part > 1)" mat-menu-item class="text-application"
+            (click)="editMovie(movie)">
+            <mat-icon style="color: #9C27B0">edit</mat-icon>
+            Edit
+        </button>
+
+        <button *ngIf="(!movie.part || (movie.part && movie.part > 1)) && movie.statusId == 1 && movie.path"
+            mat-menu-item class="text-application" (click)="followLink(movie.path)">
+            <mat-icon style="color: #3f51b5">remove_red_eye</mat-icon>
+            Check
+        </button>
+
+        <button *ngIf="(!movie.part || (movie.part && movie.part > 1)) && movie.statusId == 2 && movie.path"
+            mat-menu-item class="text-application" (click)="followLink(movie.path)">
+            <mat-icon style="color: green">cloud_download</mat-icon>
+            Download
+        </button>
+
+        <button *ngIf="(!movie.part || (movie.part && movie.part > 1)) && movie.statusId == 4 && movie.path"
+            mat-menu-item class="text-application" (click)="followLink(movie.path)">
+            <mat-icon style="color: #3f51b5">remove_red_eye</mat-icon>
+            Watch
+        </button>
+
+        <button *ngIf="(!movie.part || (movie.part && movie.part > 1)) && movie.statusId == 5 && movie.path"
+            mat-menu-item class="text-application" (click)="followLink(movie.path)">
+            <mat-icon style="color: #0e8999">search</mat-icon>
+            Search
+        </button>
+
+        <button *ngIf="!movie.part || (movie.part && movie.part > 1)" mat-menu-item class="text-application"
+            (click)="deleteMovie(movie.key)">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            Delete
+        </button>
+
+    </ng-template>
+
+</mat-menu>
+
+<br>
+
+<div *ngIf="moviesList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="moviesList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>

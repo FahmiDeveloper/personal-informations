@@ -1,0 +1,212 @@
+<div mat-dialog-title class="dialog-title">
+    <h3 *ngIf="!debt.key" mat-dialog-title class="text-application">New debt</h3>
+    <h3 *ngIf="debt.key" mat-dialog-title class="text-application">Edit debt</h3>
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+        
+        <form (ngSubmit)="save()" #f="ngForm">
+
+            <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                <mat-grid-tile>Rest money</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox name="isRestMoney" [(ngModel)]="debt.isRestMoney" (ngModelChange)="checkAddRestMoney()" style="margin-top: 10px;"></mat-checkbox>
+                </mat-grid-tile>
+            </mat-grid-list>
+
+            <br>
+
+            <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                <mat-grid-tile>Debt to pay</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox name="debtForPay" [(ngModel)]="debt.debtForPay" (ngModelChange)="checkDebtForPay()" style="margin-top: 10px;"></mat-checkbox>
+                </mat-grid-tile>
+            </mat-grid-list>
+
+            <br>
+
+            <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                <mat-grid-tile>Debt to get</mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-checkbox name="debtToGet" [(ngModel)]="debt.debtToGet" (ngModelChange)="checkDebtToGet()" style="margin-top: 10px;"></mat-checkbox>
+                </mat-grid-tile>
+            </mat-grid-list>
+
+            <br>
+
+            <div>
+                <mat-form-field color="accent">
+                    <input matInput #input type="date" placeholder="Date" [(ngModel)]="debt.date" name="date" readonly>
+                    <mat-error *ngIf="f.invalid">{{getErrorMessage()}}</mat-error>
+                </mat-form-field>
+
+                <mat-form-field color="accent">
+                    <mat-select placeholder="Place" [(ngModel)]="debt.placeId" name="placeId">
+                        <mat-option *ngFor="let placeMoney of placesMoney" [value]="placeMoney.id" [hidden]="placeMoney.id == 5 && debt.isRestMoney">
+                            {{placeMoney.place}}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="f.invalid">{{getErrorMessage()}}</mat-error>
+                </mat-form-field>
+
+                <mat-form-field color="accent" *ngIf="debt.isRestMoney && debt.placeId == 3">
+                    <mat-select placeholder="Envelope for" class="text-application" [(ngModel)]="debt.envelopeId" name="envelopeId">
+                        <mat-option *ngFor="let envelope of envelopesList" [value]="envelope.id">
+                            <span class="text-application">{{envelope.envelopeFor}}</span>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field color="accent" *ngIf="debt.isRestMoney">
+                    <input matInput #input type="text" placeholder="Rest Money" [(ngModel)]="debt.restMoney" name="restMoney">
+                    <mat-error *ngIf="f.invalid">{{getErrorMessage()}}</mat-error>
+                </mat-form-field>
+
+                <mat-form-field color="accent" *ngIf="debt.debtForPay || debt.debtToGet">
+                    <input matInput #input type="text" placeholder="Debt" [(ngModel)]="debt.financialDebt" name="financialDebt">
+                    <mat-error *ngIf="f.invalid">{{getErrorMessage()}}</mat-error>
+                </mat-form-field>
+
+                <mat-form-field color="accent">
+                    <mat-select placeholder="Unit" [(ngModel)]="selectedUnit" name="selectedUnit" (selectionChange)="onSelectUnit()">
+                        <mat-option *ngFor="let unit of units" [value]="unit.unitName">
+                            {{unit.unitName}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field color="accent" *ngIf="debt.debtForPay">
+                    <input matInput #input type="text" placeholder="Creditor" [(ngModel)]="debt.creditor" name="creditor">
+                    <mat-error *ngIf="f.invalid">{{getErrorMessage()}}</mat-error>
+                </mat-form-field>
+
+                <mat-form-field color="accent" *ngIf="debt.debtToGet">
+                    <input matInput #input type="text" placeholder="Debtor" [(ngModel)]="debt.debtor" name="debtor">
+                    <mat-error *ngIf="f.invalid">{{getErrorMessage()}}</mat-error>
+                </mat-form-field>
+
+                <div *ngIf="debt.debtForPay">
+                    <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                        <mat-grid-tile>Pay this month</mat-grid-tile>
+                        <mat-grid-tile>
+                            <mat-checkbox
+                                name="toPayThisMonth"
+                                [(ngModel)]="debt.toPayThisMonth" 
+                                style="margin-left:30px;vertical-align: bottom;" 
+                                (ngModelChange)="checkToPayThisMonth()">
+                            </mat-checkbox>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+
+                    <br>
+    
+                    <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                        <mat-grid-tile>Pay next month</mat-grid-tile>
+                        <mat-grid-tile>
+                            <mat-checkbox 
+                                name="toPayNextMonth" 
+                                [(ngModel)]="debt.toPayNextMonth" 
+                                style="margin-left:30px;vertical-align: bottom;" 
+                                (ngModelChange)="checkToPayNextMonth()">
+                            </mat-checkbox>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+
+                    <br>
+    
+                    <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                        <mat-grid-tile><span style="margin-right: 25px;">Not pay Now</span></mat-grid-tile>
+                        <mat-grid-tile>
+                            <mat-checkbox 
+                                name="notToPayForNow" 
+                                [(ngModel)]="debt.notToPayForNow" 
+                                style="margin-left:30px;vertical-align: bottom;" 
+                                (ngModelChange)="checkNotToPayForNow()">
+                            </mat-checkbox>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </div>
+
+                <div *ngIf="debt.debtToGet">
+                    <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                        <mat-grid-tile>Get this month</mat-grid-tile>
+                        <mat-grid-tile>
+                            <mat-checkbox 
+                                name="toGetThisMonth" 
+                                [(ngModel)]="debt.toGetThisMonth" 
+                                style="margin-left:30px;vertical-align: bottom;" 
+                                (ngModelChange)="checkToGetThisMonth()">
+                            </mat-checkbox>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+
+                    <br>
+    
+                    <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                        <mat-grid-tile>Get next month</mat-grid-tile>
+                        <mat-grid-tile>
+                            <mat-checkbox 
+                                name="toGetNextMonth" 
+                                [(ngModel)]="debt.toGetNextMonth" 
+                                style="margin-left:30px;vertical-align: bottom;" 
+                                (ngModelChange)="checkToGetNextMonth()">
+                            </mat-checkbox>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+
+                    <br>
+    
+                    <mat-grid-list cols="2" rowHeight="4:1" style="font-size: 20px;">
+                        <mat-grid-tile><span style="margin-right: 25px;">Not get Now</span></mat-grid-tile>
+                        <mat-grid-tile>
+                            <mat-checkbox 
+                                name="notToGetForNow" 
+                                [(ngModel)]="debt.notToGetForNow" 
+                                style="margin-left:30px;vertical-align: bottom;" 
+                                (ngModelChange)="checkNotToGetForNow()">
+                            </mat-checkbox>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </div>
+
+                <mat-form-field color="accent">
+                    <textarea matInput #input type="text" placeholder="Note" [(ngModel)]="debt.note" name="note" rows="4" cols="80"></textarea>
+                </mat-form-field>
+            </div>
+
+            <div class="row justify-content-center" mat-dialog-actions>
+                <button
+                    *ngIf="debt.isRestMoney"
+                    mat-button 
+                    type="submit" 
+                    [disabled]="!debt.placeId || !debt.restMoney || !debt.note || (debt.placeId == 3 && !debt.envelopeId)" 
+                    [mat-dialog-close]="1" 
+                    style="background:#FF5722;color: white;">
+                    Save
+                </button>
+                <button
+                    *ngIf="debt.debtForPay"
+                    mat-button 
+                    type="submit" 
+                    [disabled]="!debt.financialDebt || !debt.creditor || !debt.note || (!debt.toPayThisMonth && !debt.toPayNextMonth && !debt.notToPayForNow)" 
+                    [mat-dialog-close]="1" 
+                    style="background:#FF5722;color: white;">
+                    Save
+                </button>
+                <button
+                    *ngIf="debt.debtToGet"
+                    mat-button 
+                    type="submit" 
+                    [disabled]="!debt.financialDebt || !debt.debtor || !debt.note || (!debt.toGetThisMonth && !debt.toGetNextMonth && !debt.notToGetForNow)" 
+                    [mat-dialog-close]="1" 
+                    style="background:#FF5722;color: white;">
+                    Save
+                </button>
+                <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;">Cancel</button>
+            </div>
+
+        </form>
+    </div>
+</div>

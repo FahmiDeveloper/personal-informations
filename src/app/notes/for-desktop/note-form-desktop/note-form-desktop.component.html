@@ -1,0 +1,110 @@
+<div mat-dialog-title class="dialog-title">
+  <h3 *ngIf="!note.key" mat-dialog-title class="text-application">New note</h3>
+  <h3 *ngIf="note.key" mat-dialog-title class="text-application">Edit note</h3>
+</div>
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <form (ngSubmit)="save()" #f="ngForm">
+
+      <mat-form-field class="text-application" style="width: 390px !important;">
+        <mat-label>Keyword</mat-label>
+        <mat-select name="keywordSelected" class="text-application" [(ngModel)]="note.keyword" (openedChange)="onSelectOpened($event)" required>
+            <input #searchInput class="input-search text-application" matInput type="text" name="keywordForSearch" (keyup)="filterOptions()" [(ngModel)]="keywordForSearch"/>
+            <mat-option *ngFor="let keyword of keywordsListForForm" [value]="keyword">
+              <span class="text-application">{{keyword}}</span>
+            </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      &nbsp;&nbsp;&nbsp;
+
+      <mat-icon 
+        style="color: #2196F3;vertical-align: text-top;cursor: pointer;" 
+        (click)="newKeyword()">
+        add
+      </mat-icon>
+
+      <br>
+
+      <ng-container *ngIf="note.keyword && note.keyword !== 'Code used'"> 
+    
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Content</span></mat-placeholder>
+          <input matInput #input type="text" [(ngModel)]="note.contentNote" name="contentNote" class="text-application" required>
+        </mat-form-field>
+  
+        <br>
+  
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Path</span></mat-placeholder>
+          <input matInput #input type="text" [(ngModel)]="note.path" name="path" class="text-application">
+        </mat-form-field>
+  
+      </ng-container>
+
+      <ng-container *ngIf="note.keyword && note.keyword == 'Code used'">
+
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Content code</span></mat-placeholder>
+          <input matInput #input type="text" [(ngModel)]="note.contentCode" name="contentCode" class="text-application">
+        </mat-form-field>
+  
+        <br>
+
+        <mat-form-field class="text-application">
+          <mat-label>Type code</mat-label>
+          <mat-select name="typeCodeSelected" class="text-application" [(ngModel)]="typeCodeSelected">
+              <mat-option [value]="1">TypeScript</mat-option>
+              <mat-option [value]="2">HTML</mat-option>
+              <mat-option [value]="3">Java</mat-option>
+              <mat-option [value]="4">Css</mat-option>
+              <mat-option [value]="5">Other</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <br>
+
+        <ng-container *ngIf="typeCodeSelected">
+
+          <mat-form-field *ngIf="typeCodeSelected == 1" color="accent">
+            <mat-placeholder class="text-application"><span>TypeScript code</span></mat-placeholder>
+            <textarea matInput type="text" [(ngModel)]="note.typescriptCode" name="typescriptCode" class="text-application"></textarea>
+          </mat-form-field>
+        
+          <mat-form-field *ngIf="typeCodeSelected == 2" color="accent">
+            <mat-placeholder class="text-application"><span>HTML code</span></mat-placeholder>
+            <textarea matInput type="text" [(ngModel)]="note.htmlCode" name="htmlCode" class="text-application"></textarea>
+          </mat-form-field>
+      
+          <mat-form-field *ngIf="typeCodeSelected == 3" color="accent">
+            <mat-placeholder class="text-application"><span>Java code</span></mat-placeholder>
+            <textarea matInput type="text" [(ngModel)]="note.javaCode" name="javaCode" class="text-application"></textarea>
+          </mat-form-field>
+
+          <mat-form-field *ngIf="typeCodeSelected == 4" color="accent">
+            <mat-placeholder class="text-application"><span>Css code</span></mat-placeholder>
+            <textarea matInput type="text" [(ngModel)]="note.cssCode" name="cssCode" class="text-application"></textarea>
+          </mat-form-field>
+
+          <mat-form-field *ngIf="typeCodeSelected == 5" color="accent">
+            <mat-placeholder class="text-application"><span>Other code</span></mat-placeholder>
+            <textarea matInput type="text" [(ngModel)]="note.otherCode" name="otherCode" class="text-application"></textarea>
+          </mat-form-field>
+
+        </ng-container>
+
+      </ng-container>
+
+      <div class="row justify-content-center" mat-dialog-actions>
+        <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1" style="background:#FF5722;color: white;" class="text-application">Save</button>
+        <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;" class="text-application">Cancel</button>
+      </div>
+
+    </form>
+  
+  </div>
+  
+</div>

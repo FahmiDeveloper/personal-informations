@@ -1,0 +1,161 @@
+<div class="head" [ngClass]="getHeadClass()">
+    <div class="head-content">
+        <div class="head-content-left">
+            <div class="search-container">
+                <div *ngIf="!canShowSearchAsOverlay" class="normal-search">
+                    <input type="search" class="search text-application" name="" id="" placeholder="Search...">
+                    <i class="far fa-search search-icon"></i>
+                </div>
+                <div *ngIf="canShowSearchAsOverlay">
+                    <button (click)="isOpenOverlaySearch = !isOpenOverlaySearch" cdkOverlayOrigin
+                        #triggerSearch="cdkOverlayOrigin" class="search-menu-btn ripple">
+                        <i class="far fa-search search-icon"></i>
+                    </button>
+
+                    <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="triggerSearch"
+                        [cdkConnectedOverlayHasBackdrop]="true" (backdropClick)="isOpenOverlaySearch = false"
+                        [cdkConnectedOverlayOpen]="isOpenOverlaySearch" let-c="close" let-d="dismiss">
+                        <div class="overlay overlay-search overlay-fall" cdkMenu>
+                            <input type="search" class="search" name="" id="" placeholder="Search...">
+                            <button class="search-btn">
+                                <i class="far fa-search search-icon"></i>
+                            </button>
+                        </div>
+                    </ng-template>
+
+                </div>
+            </div>
+        </div>
+        <div class="head-content-right">
+            <div class="head-menu">
+                <div class="head-menu-item">
+                    <button (click)="isOpenOverlayFlags = !isOpenOverlayFlags" cdkOverlayOrigin
+                        #triggerFlags="cdkOverlayOrigin" class="head-menu-item-btn ripple">
+                        <img [src]="'assets/flags/' + selectedLanguage.flag + '.jpg'" class="flag" alt="flag">
+                    </button>
+
+                    <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="triggerFlags"
+                        [cdkConnectedOverlayHasBackdrop]="true" (backdropClick)="isOpenOverlayFlags = false"
+                        [cdkConnectedOverlayOpen]="isOpenOverlayFlags" let-c="close" let-d="dismiss">
+                        <div class="overlay overlay-language overlay-fall" cdkMenu>
+                            <ul>
+                                <li *ngFor="let lang of languages" cdkMenuItem>
+                                    <img [src]="'assets/flags/' + lang.flag + '.jpg'" alt="flag">
+                                    <span class="text-application">{{lang.language}}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="head-menu-item">
+                    <button class="head-menu-item-btn ripple">
+                        <i class="far fa-expand menu-icon"></i>
+                    </button>
+                </div>
+                <div class="head-menu-item">
+                    <button (click)="isOpenOverlayNotifs = !isOpenOverlayNotifs" cdkOverlayOrigin
+                        #triggerNotifs="cdkOverlayOrigin" class="head-menu-item-btn ripple">
+                        <i [matBadgeHidden]="allNotifNotDone.length == 0" [matBadge]="allNotifNotDone.length"
+                            matBadgePosition="after" matBadgeColor="accent" matBadgeSize="medium"
+                            class="far fa-bell menu-icon">
+                        </i>
+                    </button>
+
+                    <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="triggerNotifs"
+                        [cdkConnectedOverlayHasBackdrop]="true" (backdropClick)="isOpenOverlayNotifs = false"
+                        [cdkConnectedOverlayOpen]="isOpenOverlayNotifs" let-c="close" let-d="dismiss">
+                        <div class="notification-container text-application" cdkMenu>
+                            <div class="notification-header">
+                                <h2>Notifications</h2>
+                                <span class="notification-view-all">
+                                    <a routerLink='/notifications' (click)="isOpenOverlayNotifs = false">View All</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <i class="fa fa-times" aria-hidden="true" (click)="isOpenOverlayNotifs = false" [ngStyle]="{'cursor': isDesktop ? 'pointer' : ''}"></i>
+                                </span>
+                            </div>
+                            <div [ngClass]="!isDesktop ? 'overlay-panel' : ''" style=" background: white; border: 1px solid #ccc;">
+                                <ul class="notification-list">
+                                    <li class="notification-item" *ngFor="let notification of allNotifNotDone" cdkMenuItem>
+                                        <div class="notification-icon">
+                                            <i *ngIf="notification.reminderForId == 1" class="fa fa-film"></i>
+                                            <i *ngIf="notification.reminderForId == 2" class="fa fa-rocket"></i>
+                                            <i *ngIf="notification.reminderForId == 3" class="fa fa-television"></i>
+                                            <i *ngIf="notification.reminderForId == 4" class="fa fa-sticky-note"></i>
+                                            <i *ngIf="notification.reminderForId == 5" class="fa fa-clock-o"></i>
+                                            <i *ngIf="notification.reminderForId == 6" class="fa fa-calendar"></i>
+                                            <i *ngIf="notification.reminderForId == 7" class="fa fa-money"></i>
+                                            <i *ngIf="notification.reminderForId == 8" class="fa fa-file"></i>
+                                            <i *ngIf="notification.reminderForId == 9" class="fa fa-unlock-alt"></i>
+                                            <i *ngIf="notification.reminderForId == 10" class="fa fa-plus-square"></i>
+                                            <i *ngIf="notification.reminderForId == 11" class="fa fa-file"></i>
+                                            <i *ngIf="notification.reminderForId == 12" class="fa fa-bell"></i>
+                                        </div>
+                                        <div class="notification-content">
+                                            <span class="notification-title">
+                                                <span *ngIf="notification.reminderForId == 1">Movie</span>
+                                                <span *ngIf="notification.reminderForId == 2">Anime</span>
+                                                <span *ngIf="notification.reminderForId == 3">Serie</span>
+                                                <span *ngIf="notification.reminderForId == 4">Note</span>
+                                                <span *ngIf="notification.reminderForId == 5">Clocking</span>
+                                                <span *ngIf="notification.reminderForId == 6">Expiration</span>
+                                                <span *ngIf="notification.reminderForId == 7">Debt</span>
+                                                <span *ngIf="notification.reminderForId == 8">File</span>
+                                                <span *ngIf="notification.reminderForId == 9">Password</span>
+                                                <span *ngIf="notification.reminderForId == 10">Medication</span>
+                                                <span *ngIf="notification.reminderForId == 11">Document</span>
+                                                <span *ngIf="notification.reminderForId == 12">Other</span>&nbsp;
+                                                <i *ngIf="notification.notifSubjectDone == true" class="fa fa-check"
+                                                    style="color: green;" aria-hidden="true"></i>
+                                                <i *ngIf="notification.notifSubjectDone == false" class="fa fa-times"
+                                                    style="color: red;" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="notification-message"
+                                                [matTooltip]="notification.subject.length > 55 ? notification.subject : ''"
+                                                matTooltipPosition="below" matTooltipClass="data-tooltip">
+                                                {{isDesktop ? getTruncatedNameSubject(notification.subject, 55) : notification.subject}}
+                                            </span>
+                                            <span class="notification-date-time">
+                                                {{notification.date | date:'dd/MM/yyyy'}}&nbsp;{{notification.time}}<br>
+                                                <span class="notification-time">{{ getTimeAgo(notification.formatDate) }}</span>
+                                              </span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>                      
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="head-menu-item">
+                    <button class="head-menu-item-btn ripple">
+                        <i class="far fa-comment-alt menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="head-user-avatar-container">
+                <div class="head-user-avatar" (click)="isOpenOverlayUser = !isOpenOverlayUser" cdkOverlayOrigin
+                    #triggerUser="cdkOverlayOrigin">
+                    <img src="../../assets/user3.png" alt="user" class="user-avatar">
+                    <div class="circle-indicator pulse"></div>
+                </div>
+
+
+
+
+                <ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="triggerUser"
+                    [cdkConnectedOverlayHasBackdrop]="true" (backdropClick)="isOpenOverlayUser = false"
+                    [cdkConnectedOverlayOpen]="isOpenOverlayUser" let-c="close" let-d="dismiss">
+                    <div class="overlay overlay-user overlay-fall" cdkMenu>
+                        <ul>
+                            <li *ngFor="let item of userItems" cdkMenuItem
+                                (click)="item.label == 'Logout' ? logout() : ''">
+                                <a>
+                                    <i class="icon" [ngClass]="item.icon"></i>
+                                    <span class="text-application">{{item.label}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
