@@ -26,3 +26,17 @@
   <p>✅ Logged in as: {{ user?.email }}</p>
   <button (click)="logout()">Logout</button>
 </div>
+
+<div style="text-align:center; margin-top:50px;">
+  <h2>Upload File to Firestore</h2>
+  <input type="file" (change)="onFileSelected($event)" />
+  <button (click)="uploadFile()">Upload</button>
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+  <h2>Images from Firestore</h2>
+  <div *ngFor="let img of images" style="margin:10px;">
+    <p>{{ img.name }}</p>
+    <img [src]="img.url" alt="{{ img.name }}" width="200"/>
+  </div>
+</div>
