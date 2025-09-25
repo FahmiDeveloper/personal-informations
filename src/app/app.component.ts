@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
+
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +9,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'angular-personal-informations';
+  title = 'dailycheck';
+  public aufgaben: Observable<any>[] = [];
+
+  constructor(afDb: AngularFireDatabase) {
+    const itemsRef: AngularFireList<any> = afDb.list('Aufgaben');
+    itemsRef.valueChanges().subscribe(
+      x=> {this.aufgaben = x}
+    );
+  }
 }
