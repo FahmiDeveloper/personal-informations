@@ -1,0 +1,91 @@
+<div mat-dialog-title class="dialog-title">
+  <h3 *ngIf="!medication.key" mat-dialog-title class="text-application">New medication</h3>
+  <h3 *ngIf="medication.key" mat-dialog-title class="text-application">Edit medication</h3>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <form (ngSubmit)="save()" #f="ngForm">
+
+      <mat-form-field color="accent">
+        <mat-placeholder class="text-application"><span>Name</span></mat-placeholder>
+        <input matInput #input type="text" [(ngModel)]="medication.medicationName" name="medicationName" class="text-application" required>
+      </mat-form-field>
+  
+      <mat-form-field color="accent" class="text-application" style="width: 180px;">
+        <mat-select placeholder="Disease" name="diseaseSelectedId" class="text-application" [(ngModel)]="diseaseSelected" required>
+          <mat-option value=""></mat-option>
+          <mat-option *ngFor="let disease of arrayDiseases" [value]="disease">
+            <span class="text-application">{{disease.diseaseName}}</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+  
+      &nbsp;
+  
+      <mat-icon 
+        style="color: #2196F3;vertical-align: text-top;cursor: pointer;" 
+        (click)="newDisease()">
+        add
+      </mat-icon>
+  
+      &nbsp;&nbsp;
+  
+      <mat-icon
+        *ngIf="diseaseSelected.key" 
+        style="color: #9C27B0;vertical-align: text-top;cursor: pointer;" 
+        (click)="editDisease(diseaseSelected)">
+        edit
+      </mat-icon>
+  
+      &nbsp;&nbsp;
+  
+      <mat-icon
+        *ngIf="diseaseSelected.key" 
+        style="color: #f44336;vertical-align: text-top;cursor: pointer;" 
+        (click)="deleteDisease(diseaseSelected.key)">
+        delete
+      </mat-icon>
+  
+      <div class="row">
+        <div class="col-md-4">
+          <mat-form-field color="accent" style="width: 155px;">
+            <mat-placeholder class="text-application"><span>Price</span></mat-placeholder>
+            <input matInput #input type="text" [(ngModel)]="medication.price" name="price" class="text-application">
+          </mat-form-field>
+  
+          &nbsp;&nbsp;
+  
+          <mat-form-field color="accent" class="text-application" style="width: 130px;">
+            <mat-select placeholder="Unit" [(ngModel)]="selectedUnit" name="selectedUnit" (selectionChange)="onSelectUnit()">
+                <mat-option *ngFor="let unit of units" [value]="unit.unitName">
+                    <span class="text-application">{{unit.unitName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        </div>
+      </div>
+  
+      <mat-form-field color="accent">
+        <mat-placeholder class="text-application"><span>Utilisation</span></mat-placeholder>
+        <textarea matInput #input type="text" [(ngModel)]="medication.utilisation" name="note" rows="4" cols="40" class="text-application"></textarea>
+      </mat-form-field>
+  
+      <button type="button" mat-button (click)="fileInput.click()">Choose file</button>
+      <input hidden (change)="onFileChanged($event)" #fileInput type="file" id="file">
+      <br *ngIf="progressValue"><br *ngIf="progressValue">
+      <div *ngIf="progressValue | async as val" class="progress-background">
+          <div class="progress-meter" [ngStyle] = "{'width.%': val}"></div>
+          <span style="margin-left: 45%;">{{ val | number: '1.0-0' }}%</span>
+      </div>
+  
+      <br *ngIf="progressValue">
+  
+      <div class="row justify-content-center" mat-dialog-actions>
+        <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1" style="background:#FF5722;color: white;" class="text-application">Save</button>
+        <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;" class="text-application">Cancel</button>
+      </div>
+  
+    </form>
+  </div>
+</div>

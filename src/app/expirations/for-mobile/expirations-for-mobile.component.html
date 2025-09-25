@@ -1,0 +1,165 @@
+<h1 #target class="titleTextInterface text-application">Expirations</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-label>Content</mat-label>
+            <input matInput type="text" name="content" (keyup)="getAllExpirations()" [(ngModel)]="content"/>
+        </mat-form-field>
+        <button
+            type="button" 
+            (click)="newExpiration()" 
+            mat-mini-fab 
+            color="primary" 
+            style="background: #004a9f;float: right;margin-top: 7px">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div> 
+</div>
+
+<br>
+  
+<div class="example-container mat-elevation-z8">
+    <div class="example-table-container">
+        <table mat-table [dataSource]="dataSource">
+
+            <ng-container matColumnDef="content">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12">
+                        <mat-grid-tile colspan="3"><div>Content:</div></mat-grid-tile>
+                        <mat-grid-tile colspan="9"><div style="margin-left: 17px;">{{ element.contentName }}</div></mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cost">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12">
+                        <mat-grid-tile colspan="3"><div>Cost:</div></mat-grid-tile>
+                        <mat-grid-tile colspan="9">
+                            <div style="margin-left: 8px;">
+                                <span *ngIf="element.cost">{{ element.cost }}</span>
+                                <span *ngIf="!element.cost">-</span>
+                            </div>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="start">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12">
+                        <mat-grid-tile colspan="3"><div>Start:</div></mat-grid-tile>
+                        <mat-grid-tile colspan="9"><div style="margin-left: 8px;">{{ element.dateStart | date:'dd/MM/yyyy' }}</div></mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="expiration">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12">
+                        <mat-grid-tile colspan="3"><div>Expiration:</div></mat-grid-tile>
+                        <mat-grid-tile colspan="9"><div style="margin-left: 8px;">{{ element.dateExpiration | date:'dd/MM/yyyy' }}</div></mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="duration">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12">
+                        <mat-grid-tile colspan="3"><div>Duration:</div></mat-grid-tile>
+                        <mat-grid-tile colspan="9"><div style="margin-left: 8px;">{{ element.duration }}</div></mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="rest">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12">
+                        <mat-grid-tile colspan="3">
+                            <div>
+                                <span *ngIf="element.isExpired" style="color: red;">Passed</span>
+                                <span *ngIf="!element.isExpired && !element.soonToExpire" style="color: green;">Rest</span>
+                                <span *ngIf="!element.isExpired && element.soonToExpire" style="color: #ff6900;">Rest</span>
+                            </div>
+                        </mat-grid-tile>
+                        <mat-grid-tile colspan="9">
+                            <div style="margin-left: 8px;">
+                                <span *ngIf="element.isExpired" style="color: red;">{{ element.restdays }}</span>
+                                <span *ngIf="!element.isExpired && !element.soonToExpire" style="color: green;">{{ element.restdays }}</span>
+                                <span *ngIf="!element.isExpired && element.soonToExpire" style="color: #ff6900;">{{ element.restdays }}</span>
+                            </div>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="note">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-grid-list cols="12" rowHeight="25px">
+                        <mat-grid-tile colspan="3"><div>Note:</div></mat-grid-tile>
+                        <mat-grid-tile colspan="9">
+                            <div *ngIf="element.note" style="margin-left: 8px;">
+                                <mat-icon style="color: #ff4081;margin-right: 195px;" (click)="viewNote(element.note)">remove_red_eye</mat-icon>                            
+                            </div>
+                            <div *ngIf="!element.note" style="margin-left: 8px;">-</div>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="star">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let element"> 
+                    <button mat-icon-button [matMenuTriggerFor]="menu" [matMenuTriggerData]="{element:element}">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+    
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <div *ngIf="dataSource.data.length == 0" class="row justify-content-center no-results text-application">
+            No results
+        </div>
+    
+        <mat-paginator 
+            [pageSizeOptions]="[8]"
+            showFirstLastButtons 
+            aria-label="Select page of periodic elements"
+            (page)="OnPageChange(target)">
+        </mat-paginator>
+    </div>
+</div>
+  
+<mat-menu #menu="matMenu">
+    <ng-template matMenuContent let-expiration="element">
+
+        <button
+            type="button"
+            (click)="editExpiration(expiration)"
+            mat-menu-item>
+            <mat-icon aria-label="Edit" style="color: #9C27B0;">edit</mat-icon>
+            <span>Edit</span>
+        </button>
+
+        <button 
+            type="button"
+            mat-menu-item 
+            (click)="deleteExpiration(expiration.key)">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            <span>Delete</span>
+        </button>
+
+    </ng-template>
+</mat-menu>

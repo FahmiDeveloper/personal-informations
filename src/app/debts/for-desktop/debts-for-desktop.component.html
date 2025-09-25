@@ -1,0 +1,562 @@
+<h1 class="titleTextInterface text-application">Debts</h1>
+
+<div class="row">
+
+    <div class="col-md-3">
+
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-placeholder>Place</mat-placeholder>
+			<mat-select class="text-application" name="placeId" [(ngModel)]="placeId" (selectionChange)="getAllDebts()">
+                <mat-option value=""></mat-option>
+				<mat-option class="text-application" *ngFor="let placeMoney of placesMoney" [value]="placeMoney.id">
+                    {{placeMoney.place}}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+
+    </div>
+
+    <div class="col-md-3">
+        <mat-form-field *ngIf="placeId == 3" color="accent" class="text-application" style="width: 200px">
+            <mat-select placeholder="Envelope for" class="text-application" [(ngModel)]="envelopeId" name="envelopeId" (selectionChange)="getAllDebts()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let envelope of envelopesList" [value]="envelope.id">
+                    <span class="text-application">{{envelope.envelopeFor}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-2">
+
+        <button
+            mat-flat-button 
+            (click)="showRest(contentRestMoneyForeachPlace)" 
+            class="text-application"
+            style="position: absolute;top: 50%;transform: translateY(-50%);background: #263238;color: white;">
+            Rest
+        </button>
+
+    </div>
+
+    <div class="col-md-1">
+
+        <button 
+            *ngIf="debtsList.length && debtsList.length > 1 && placeId" [hidden]="placeId == 5"
+            mat-flat-button 
+            color="warn" 
+            (click)="deleteAllByPlace(contentLoading)"
+            class="text-application"
+            style="position: absolute;top: 50%;transform: translateY(-50%);">
+            Delete all
+        </button>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <button
+            type="button" 
+            (click)="newDebt()" 
+            mat-mini-fab 
+            color="primary" 
+            style="background: #263238;float: right;top: 50%;transform: translateY(-50%);">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+
+        <button 
+            *ngIf="!sortByDesc"
+            type="button"  
+            mat-mini-fab 
+            color="primary" 
+            (click)="sortByRefDebtDesc()" 
+            style="background: #263238;float: right;margin-right: 10px;top: 50%;transform: translateY(-50%);">
+            <mat-icon style="color: white;" aria-label="Example icon-button with a heart icon">sort</mat-icon>
+        </button>&nbsp;&nbsp;
+
+        <button 
+            *ngIf="sortByDesc"
+            type="button"
+            mat-mini-fab
+            color="primary" 
+            (click)="sortByRefDebtAsc()" 
+            style="background: #263238;float: right;margin-right: 10px;top: 50%;transform: translateY(-50%);">
+            <mat-icon style="color: white;" aria-label="Example icon-button with a heart icon">sort</mat-icon>
+        </button>
+
+    </div> 
+</div>
+
+<br *ngIf="placeId">
+
+<div *ngIf="placeId == 1">
+    <mat-grid-list cols="6" rowHeight="5:1" style="font-size: 20px;">
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile class="text-application">Pocket</mat-grid-tile>
+        <mat-grid-tile class="text-application" style="color: #dc3545;">{{ restInPocket }}</mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+    </mat-grid-list>
+</div>
+
+<div *ngIf="placeId == 2">
+    <mat-grid-list cols="6" rowHeight="5:1" style="font-size: 20px;">
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile class="text-application">Wallet</mat-grid-tile>
+        <mat-grid-tile class="text-application" style="color: #dc3545;">{{ restInWallet }}</mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+    </mat-grid-list>
+</div>
+
+<div *ngIf="placeId == 3">
+    <mat-grid-list cols="6" rowHeight="5:1" style="font-size: 20px;">
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile class="text-application">
+            <span *ngIf="!envelopeId">Envelopes</span>
+            <span *ngIf="envelopeId">
+                <span *ngIf="envelopeId == 1">Taxi</span>
+                <span *ngIf="envelopeId == 2">Internet</span>
+                <span *ngIf="envelopeId == 3">Water/Elec</span>
+                <span *ngIf="envelopeId == 4">Bein sports</span>
+                <span *ngIf="envelopeId == 5">Home Location</span>
+                <span *ngIf="envelopeId == 6">Home Supplies</span>
+            </span>        
+        </mat-grid-tile>
+        <mat-grid-tile class="text-application">
+            <button
+                *ngIf="!envelopeId"
+                mat-flat-button 
+                (click)="showRestEnvelope(contentRestMoneyForeachEnve)" 
+                class="text-application"
+                style="position: absolute;top: 50%;transform: translateY(-50%);background: #263238;color: white;">
+                Content
+            </button>
+            <span *ngIf="envelopeId" style="color: #dc3545;">
+                <span *ngIf="envelopeId == 1">{{ restInEnvTaxi }}</span>
+                <span *ngIf="envelopeId == 2">{{ restInEnvInternet }}</span>
+                <span *ngIf="envelopeId == 3">{{ restInEnvWaterElec }}</span>
+                <span *ngIf="envelopeId == 4">{{ restInEnvBeinSports }}</span>
+                <span *ngIf="envelopeId == 5">{{ restInEnvHomeLoc }}</span>
+                <span *ngIf="envelopeId == 6">{{ restInEnvHomeSupp }}</span>
+            </span>  
+        </mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+    </mat-grid-list>
+</div>
+
+<div *ngIf="placeId == 4">
+    <mat-grid-list cols="6" rowHeight="5:1" style="font-size: 20px;">
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile class="text-application">Box</mat-grid-tile>
+        <mat-grid-tile class="text-application" style="color: #dc3545;">{{ restInBox }}</mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+    </mat-grid-list>
+</div>
+
+<div *ngIf="placeId == 5">
+    <mat-grid-list cols="12" rowHeight="3:1" style="font-size: 20px;">
+        
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+
+        <mat-grid-tile>
+            <mat-checkbox 
+                name="getInDebt" 
+                [(ngModel)]="getInDebt"         
+                (ngModelChange)="showInDebt()">
+            </mat-checkbox>
+        </mat-grid-tile>
+
+        <mat-grid-tile>Debt in</mat-grid-tile>    
+
+        <mat-grid-tile></mat-grid-tile>
+
+        <mat-grid-tile></mat-grid-tile>
+
+        <mat-grid-tile>
+            <mat-checkbox 
+                name="getOutDebt" 
+                [(ngModel)]="getOutDebt" 
+                (ngModelChange)="showOutDebt()">
+            </mat-checkbox>
+        </mat-grid-tile>
+
+        <mat-grid-tile>Debt out</mat-grid-tile>
+
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        
+    </mat-grid-list>
+
+    <br *ngIf="getInDebt || getOutDebt">
+
+    <div class="row text-application" *ngIf="getInDebt || getOutDebt">
+
+        <div [ngClass]="(innerWidth < 1366 || innerWidth == 1366) ? 'col-md-3' : 'col-md-4'"></div>
+
+        <div [ngClass]="(innerWidth < 1366 || innerWidth == 1366) ? 'col-md-6' : 'col-md-4'">
+
+            <mat-card class="text-application">
+
+                <mat-grid-list cols="2" rowHeight="4:1">
+
+                    <mat-grid-tile><span style="font-size: 20px;">Total</span></mat-grid-tile>
+
+                    <mat-grid-tile>
+                        <span style="font-size: 20px;">
+                            <span *ngIf="getInDebt">
+                                <span *ngIf="totalInDebts">{{ totalInDebts }}</span>
+                                <span *ngIf="!totalInDebts">0DT</span>
+                            </span>
+                            <span *ngIf="getOutDebt">
+                                <span *ngIf="totalOutDebts">{{ totalOutDebts }}</span>
+                                <span *ngIf="!totalOutDebts">0DT</span>
+                            </span>  
+                        </span>    
+                    </mat-grid-tile>
+
+                    <mat-grid-tile><span style="font-size: 20px;">Pay time</span></mat-grid-tile>
+
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-select *ngIf="getInDebt" name="statusInDebtId" [(ngModel)]="statusInDebtId" (selectionChange)="getTotalInDebtsByStatus()" class="text-application">
+                                <mat-option value=""></mat-option>
+                                <mat-option *ngFor="let statusInDebt of statusInDebts" [value]="statusInDebt.id">
+                                    <span class="text-application">{{statusInDebt.status}}</span>
+                                </mat-option>
+                            </mat-select>
+
+                            <mat-select *ngIf="getOutDebt" name="statusOutDebtId" [(ngModel)]="statusOutDebtId" (selectionChange)="getTotalOutDebtsByStatus()" class="text-application">
+                                <mat-option value=""></mat-option>
+                                <mat-option *ngFor="let statusOutDebt of statusOutDebts" [value]="statusOutDebt.id">
+                                    <span class="text-application">{{statusOutDebt.status}}</span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile>
+                        <span *ngIf="getInDebt" style="font-size: 20px;">Creditors</span>
+                        <span *ngIf="getOutDebt" style="font-size: 20px;">Debtors</span>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile>
+                        <mat-form-field>
+                            <mat-select *ngIf="getInDebt" name="creditorName" [(ngModel)]="creditorName" (selectionChange)="getTotalInDebtsByCreditor()" class="text-application">
+                                <mat-option value=""></mat-option>
+                                <mat-option *ngFor="let creditor of creditors" [value]="creditor">
+                                    <span class="text-application">{{creditor}}</span>
+                                </mat-option>
+                            </mat-select>
+
+                            <mat-select *ngIf="getOutDebt" name="debtorName" [(ngModel)]="debtorName" (selectionChange)="getTotalOutDebtsByDebtor()" class="text-application">
+                                <mat-option value=""></mat-option>
+                                <mat-option *ngFor="let debtor of debtors" [value]="debtor">
+                                    <span class="text-application">{{debtor}}</span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile *ngIf="statusInDebtId || statusOutDebtId || creditorName || debtorName">
+                        <span style="font-size: 20px;">Debt</span>
+                    </mat-grid-tile>
+
+                    <mat-grid-tile *ngIf="statusInDebtId || statusOutDebtId || creditorName || debtorName">
+                        <span *ngIf="statusInDebtId || creditorName" style="font-size: 20px;">
+                            <span *ngIf="totalInDebtsByCreditor">{{ totalInDebtsByCreditor }}</span>
+                            <span *ngIf="!totalInDebtsByCreditor">0DT</span>
+                        </span>                  
+                        <span *ngIf="statusOutDebtId || debtorName" style="font-size: 20px;">
+                            <span *ngIf="totalOutDebtsByDebtor">{{ totalOutDebtsByDebtor }}</span>
+                            <span *ngIf="!totalOutDebtsByDebtor">0DT</span>
+                        </span>     
+                    </mat-grid-tile>
+
+                  </mat-grid-list>
+            </mat-card>
+
+        </div>
+
+        <div [ngClass]="(innerWidth < 1366 || innerWidth == 1366) ? 'col-md-3' : 'col-md-4'"></div>
+
+    </div>
+
+</div>
+
+<div *ngIf="placeId == 6">
+    <mat-grid-list cols="6" rowHeight="5:1" style="font-size: 20px;">
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile class="text-application">Poste account</mat-grid-tile>
+        <mat-grid-tile class="text-application" style="color: #dc3545;">{{ restInPosteAccount }}</mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+        <mat-grid-tile></mat-grid-tile>
+    </mat-grid-list>
+</div>
+
+<br>
+
+<table class="table">
+
+    <thead style="background: #263238;color: white;">
+      <tr class="text-application text-center">
+        <th scope="col">Date</th>
+        <th scope="col">Place</th>
+        <th scope="col">Rest</th>
+        <th scope="col">Debtor</th>
+        <th scope="col">Creditor</th>
+        <th scope="col">Debt</th>
+        <th scope="col">Status</th>
+        <th scope="col" [ngStyle]="{'width' : (innerWidth < 1366 || innerWidth == 1366) ? '15rem': '30rem'}">Note</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let debt of (debtsList | paginate: { itemsPerPage: 8 , currentPage: p })" class="text-application text-center" (contextmenu)="onRightClick($event, debt)" style="background-color: white;">
+
+        <td>{{ debt.date | date:'dd/MM/yyyy' }}</td>
+
+        <td>
+            {{ debt.place }}
+            <ng-container *ngIf="debt.placeId == 3">
+                (
+                <span *ngIf="debt.envelopeId == 1">Taxi</span>
+                <span *ngIf="debt.envelopeId == 2">Internet</span>
+                <span *ngIf="debt.envelopeId == 3">Water/Elec</span>
+                <span *ngIf="debt.envelopeId == 4">Bein sports</span>
+                <span *ngIf="debt.envelopeId == 5">Home Location</span>
+                <span *ngIf="debt.envelopeId == 6">Home Supplies</span>
+                )
+            </ng-container>
+        </td>
+
+        <td>
+            <span *ngIf="debt.restMoney">{{ debt.restMoney }}</span>
+            <span *ngIf="!debt.restMoney">-</span>
+        </td>
+
+        <td>
+            <span *ngIf="debt.debtor">{{ debt.debtor }}</span>
+            <span *ngIf="!debt.debtor">-</span>
+        </td>
+
+        <td>
+            <span *ngIf="debt.creditor">{{ debt.creditor }}</span>
+            <span *ngIf="!debt.creditor">-</span>
+        </td>
+
+        <td>
+            <span *ngIf="debt.financialDebt">{{ debt.financialDebt }}</span>
+            <span *ngIf="!debt.financialDebt">-</span>
+        </td>  
+
+        <td>
+            <span *ngIf="debt.placeId === 5">
+                <span *ngIf="debt.toPayThisMonth">Pay this month</span>
+                <span *ngIf="debt.toPayNextMonth">Pay next month</span>
+                <span *ngIf="debt.notToPayForNow">Pay will be delayed</span>
+                <span *ngIf="debt.toGetThisMonth">Get this month</span>
+                <span *ngIf="debt.toGetNextMonth">Get next month</span>
+                <span *ngIf="debt.notToGetForNow">Get will be delayed</span>
+            </span>
+            <span *ngIf="debt.placeId !== 5">-</span>
+        </td>
+
+        <td [ngStyle]="{'width' : (innerWidth < 1366 || innerWidth == 1366) ? '15rem': '30rem'}">{{ debt.note }}</td>
+
+      </tr>
+
+    </tbody>
+    
+</table>
+
+<br *ngIf="debtsList.length !== 0">
+
+<div *ngIf="debtsList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="debtsList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>
+
+<div 
+    style="visibility: hidden; position: fixed;" 
+    [style.left]="menuTopLeftPosition.x" 
+    [style.top]="menuTopLeftPosition.y" 
+    [matMenuTriggerFor]="rightMenu">
+</div> 
+ 
+<mat-menu #rightMenu="matMenu"> 
+
+  <ng-template matMenuContent let-debt="debt">
+
+    <button 
+        type="button" 
+        mat-menu-item 
+        (click)="editDebt(debt)">
+        <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+        <span>Edit</span>
+    </button>
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="deleteDebt(debt.key)" 
+        class="text-application">
+        <mat-icon style="color: #f44336;">delete</mat-icon>
+        <span>Delete</span>
+    </button>
+
+  </ng-template>
+
+</mat-menu>
+
+<ng-template #contentRestMoneyForeachPlace>
+
+    <div mat-dialog-title class="dialog-title">
+        <h3 class="text-application">Rest Money</h3>
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Pocket</mat-grid-tile>
+        <mat-grid-tile>{{ restInPocket }}</mat-grid-tile>
+    </mat-grid-list>
+    
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Wallet</mat-grid-tile>
+        <mat-grid-tile>{{ restInWallet }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Box</mat-grid-tile>
+        <mat-grid-tile>{{ restInBox }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">    
+        <mat-grid-tile>Poste account</mat-grid-tile>
+        <mat-grid-tile>{{ restInPosteAccount }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Envelopes</mat-grid-tile>
+        <mat-grid-tile>
+            <button 
+                mat-flat-button 
+                (click)="showRestEnvelope(contentRestMoneyForeachEnve)" 
+                class="text-application"
+                style="position: absolute;top: 50%;transform: translateY(-50%);background: #263238;color: white;">
+                Content
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+
+</ng-template>
+
+<ng-template #contentRestMoneyForeachEnve>
+
+    <div mat-dialog-title class="dialog-title">
+        <h3 class="text-application">Content Money</h3>
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Taxi</mat-grid-tile>
+        <mat-grid-tile>{{ restInEnvTaxi }}</mat-grid-tile>
+    </mat-grid-list>
+    
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Internet</mat-grid-tile>
+        <mat-grid-tile>{{ restInEnvInternet }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">
+        <mat-grid-tile>Water/Elec</mat-grid-tile>
+        <mat-grid-tile>{{ restInEnvWaterElec }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">    
+        <mat-grid-tile>Bein sports</mat-grid-tile>
+        <mat-grid-tile>{{ restInEnvBeinSports }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">    
+        <mat-grid-tile>Home Location</mat-grid-tile>
+        <mat-grid-tile>{{ restInEnvHomeLoc }}</mat-grid-tile>
+    </mat-grid-list>
+
+    <br>
+    <mat-divider></mat-divider>
+    <br>
+    
+    <mat-grid-list cols="2" rowHeight="4:1" class="text-application" style="font-size: 20px;">    
+        <mat-grid-tile>Home Supplies</mat-grid-tile>
+        <mat-grid-tile>{{ restInEnvHomeSupp }}</mat-grid-tile>
+    </mat-grid-list>
+
+</ng-template>
+
+<ng-template #contentLoading>
+
+    <div mat-dialog-title class="dialog-title">
+        <h2 class="text-application">Delete debts</h2>
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+  
+    <div class="modal-body text-application">
+      <div *ngIf="isLoading">
+        <mat-spinner style="margin-left:100px; margin-top: 30px;"></mat-spinner><br>
+        <h3 class="text-application" style="text-align: center;">Delete debts in progress...</h3>
+      </div>
+    </div>
+
+</ng-template>

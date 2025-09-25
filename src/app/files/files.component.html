@@ -1,0 +1,241 @@
+<h1 class="titleTextInterface text-application">Files</h1>
+
+<mat-grid-list [cols]="isDesktop || (isTablet && orientation == 'Landscape') ? '4' : isTablet && orientation == 'Portrait' ? '3' : '2'" #grid rowHeight="315px" gutterSize="15px">
+  <mat-grid-tile *ngFor="let typeFile of typesFiles">
+    <mat-card class="settings-card" style="cursor: pointer;border: 1px solid;">
+      <mat-card-title class="text-application">{{ typeFile.title }}</mat-card-title>
+      <img [src]="typeFile.icon" [ngClass]="isMobile ? 'imageTypeFileMobile' : 'imageTypeFile'" (click)="openListFiles(contentListFiles, contentLinks, typeFile)">
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<ng-template #contentListFiles>
+
+  <div mat-dialog-title class="dialog-title">
+    <h4 class="text-application">{{ typeFile.type }} files</h4>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="row">
+      <div class="col-md-12">
+          <app-upload-form 
+            [typeFileId]="typeFile.id" 
+            [defaultArrayFiles]="defaultArrayFiles" 
+            (refContextFile)="getRefContextFile($event)">
+          </app-upload-form>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col-md-12">
+          <app-upload-list
+            [isDesktop]="isDesktop"
+            [isTablet]="isTablet" 
+            [isMobile]="isMobile" 
+            [typeFileId]="typeFile.id" 
+            [numContextFile]="numContextFile" 
+            (arrayFiles)="getDefaultArrayFiles($event)">
+          </app-upload-list>
+      </div>
+  </div>
+
+</ng-template>
+  
+<ng-template #contentLinks>
+
+  <div mat-dialog-title class="dialog-title">
+    <h4 *ngIf="!clickShowLinks" class="text-application">{{ typeFile.type }} files</h4>
+    <h4 *ngIf="clickShowLinks" class="text-application">{{ typeFile.type }} links</h4>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-grid-list cols="4" rowHeight="3:1" class="text-application" style="font-size: 20px;">
+      
+    <mat-grid-tile>Angular</mat-grid-tile>
+    <mat-grid-tile>
+      <mat-checkbox 
+        name="angularContext" 
+        [(ngModel)]="angularContext" 
+        (ngModelChange)="checkAngularContext()"
+        style="margin-top: 10px;">
+      </mat-checkbox>
+    </mat-grid-tile>
+    <mat-grid-tile>Other</mat-grid-tile>
+    <mat-grid-tile>
+      <mat-checkbox 
+        name="otherContext" 
+        [(ngModel)]="otherContext"         
+        (ngModelChange)="checkotherContext()"
+        style="margin-top: 10px;">
+      </mat-checkbox>
+    </mat-grid-tile>
+      
+  </mat-grid-list>
+
+  <br>
+
+  <div class="row" *ngIf="isMobile">
+    <div class="col-md-12">
+      <mat-form-field class="text-application" style="width: 200px;">
+        <mat-label>Content</mat-label>
+        <input matInput (input)="getAllLinks()" type="text" [(ngModel)]="content"/>
+      </mat-form-field> 
+      <button 
+        *ngIf="angularContext || otherContext"
+        type="button"  
+        (click)="newLink()" 
+        mat-mini-fab
+        style="background: #004a9f !important;float: right;margin-top: 7px">
+        <mat-icon style="color: white;">add</mat-icon>
+      </button>
+    </div> 
+  </div>
+
+  <div class="row" *ngIf="!isMobile">
+    <div class="col-md-4">
+      <mat-form-field class="text-application">
+        <mat-label>Content</mat-label>
+        <input matInput (input)="getAllLinks()" type="text" [(ngModel)]="content"/>
+      </mat-form-field>      
+    </div>
+    <div class="col-md-8">
+      <button 
+        *ngIf="angularContext || otherContext"
+        type="button"  
+        (click)="newLink()" 
+        mat-mini-fab
+        style="background: #004a9f !important;float: right;margin-top: 7px">
+        <mat-icon style="color: white;">add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <br *ngIf="angularContext || otherContext">
+
+  <div class="row">   
+    <div class="col-md-12">
+
+      <div *ngIf="linksList?.length > 0" class="example-list">
+
+        <ng-container *ngIf="isDesktop">
+
+          <div class="example-box" *ngFor="let link of (linksList | paginate: { itemsPerPage: itemsPerPage , currentPage: p })" (contextmenu)="onRightClick($event, link)">
+ 
+            <span
+              class="text-application add-three-dots"
+              style="font-size: x-large;cursor: pointer;" 
+              (click)="copyText(link)"
+              [matTooltip]="link.content.length > 60 ? link.content : ''"
+              matTooltipClass="data-tooltip">
+              {{ link.content }}
+            </span>    
+        
+          </div>
+
+        </ng-container>
+
+        <ng-container *ngIf="isTablet || isMobile">
+
+          <div class="example-box" *ngFor="let link of (linksList | paginate: { itemsPerPage: itemsPerPage , currentPage: p })" (click)="openMenuTrigger($event, link)">
+ 
+            <span
+              class="text-application add-three-dots"
+              style="font-size: x-large;">
+              {{ link.content }}
+            </span>    
+        
+          </div>
+          
+        </ng-container>
+      
+      </div>
+      
+      <div 
+        style="visibility: hidden; position: fixed;" 
+        [style.left]="menuTopLeftPosition.x" 
+        [style.top]="menuTopLeftPosition.y" 
+        [matMenuTriggerFor]="rightMenu">
+      </div> 
+      
+      <mat-menu #rightMenu="matMenu"> 
+      
+        <ng-template matMenuContent let-link="link"> 
+      
+          <button
+            type="button"
+            mat-menu-item
+            (click)="viewContentLink(link.content)"
+            class="text-application">
+            <mat-icon style="color: #283593;">remove_red_eye</mat-icon>
+            <span>Content</span>
+          </button>
+
+          <button
+            type="button"
+            mat-menu-item
+            (click)="editLink(link)"
+            class="text-application">
+            <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+            <span>Edit</span>
+          </button>
+  
+          <button
+            type="button"
+            *ngIf="link.path"  
+            mat-menu-item
+            class="text-application">
+            <mat-icon style="color: #283593;">link</mat-icon>
+            <a href="{{ link.path }}" target="_blank" style="text-decoration: none;">
+              <span style="color: black !important;">Follow</span>
+            </a>  
+          </button>
+
+          <button 
+            type="button"
+            mat-menu-item
+            (click)="shareLink(link)"
+            class="text-application">
+            <mat-icon style="color: #ff4081;">share</mat-icon>
+            <span>Share</span>                        
+          </button> 
+
+          <button
+            *ngIf="isTablet"
+            type="button"
+            mat-menu-item
+            (click)="copyText(link)"
+            class="text-application">
+            <mat-icon style="color: black;">file_copy</mat-icon>
+            <span>Copy</span>                        
+          </button>
+
+          <button 
+            type="button" 
+            mat-menu-item
+            (click)="deleteLink(link.key)" 
+            class="text-application">
+            <mat-icon style="color: #f44336;" aria-label="Delete">delete</mat-icon>
+            <span>Delete</span>
+          </button>
+      
+        </ng-template> 
+      
+      </mat-menu>
+      
+      <br>
+
+      <div *ngIf="linksList?.length !== 0" class="pagination">
+        <pagination-controls (pageChange)="p = $event;" [responsive]="true"></pagination-controls>
+      </div>
+      
+      <div *ngIf="linksList.length == 0" class="row justify-content-center no-results text-application">
+        No results
+      </div>
+
+    </div>
+  </div>
+
+</ng-template>

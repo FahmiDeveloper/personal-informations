@@ -1,0 +1,75 @@
+<div mat-dialog-title class="dialog-title">
+  <h3 *ngIf="!clocking.key" mat-dialog-title class="text-application">New clocking</h3>
+  <h3 *ngIf="clocking.key" mat-dialog-title class="text-application">Edit clocking</h3>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+  <form (ngSubmit)="save()" #f="ngForm">
+
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Date</span></mat-placeholder>
+          <input matInput #input type="date" [(ngModel)]="clocking.dateClocking" name="dateClocking" class="text-application">
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Time</span></mat-placeholder>
+          <input matInput #input type="time" [(ngModel)]="clocking.timeClocking" name="timeClocking" class="text-application">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field color="accent" class="text-application">
+          <mat-select placeholder="Subject" [(ngModel)]="clocking.subjectId" name="subjectId" class="text-application" (selectionChange)="selectSubject()">
+            <mat-option *ngFor="let subject of subjectList" [value]="subject.id">
+                <span class="text-application">{{subject.subjectName}}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>     
+      <div class="col-md-6">
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Clocking nbr</span></mat-placeholder>
+          <input matInput #input type="number" [(ngModel)]="clocking.clockingNbr" name="clockingNbr" class="text-application">
+          <mat-error *ngIf="f.invalid" class="text-application">{{getErrorMessage()}}</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div *ngIf="clocking.subjectId == 2" class="row">
+      <div class="col-md-6">
+        <mat-form-field color="accent">
+          <mat-placeholder class="text-application"><span>Date end vacation</span></mat-placeholder>
+          <input matInput #input type="date" [(ngModel)]="clocking.dateEndVaction" name="dateEndVaction" class="text-application">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <span *ngIf="showVacationLimitDays" class="text-application" style="font-size: initial;">Vacation limit days in {{ currentMonthAndYearForVacation }}:&nbsp;
+      <mat-form-field color="accent" style="width: 60px;">
+        <input matInput #input type="number" [(ngModel)]="vacationLimitDays" name="restVacationDays" class="text-application">
+      </mat-form-field>day(s)
+
+      &nbsp;
+
+      <mat-icon style="color: #2196F3;" (click)="minimizeFromVacLimitDays()">minimize</mat-icon>
+    </span>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Note</span></mat-placeholder>
+      <textarea matInput #input type="text" [(ngModel)]="clocking.note" name="note" rows="4" cols="40" class="text-application"></textarea>
+    </mat-form-field>
+
+    <div class="row justify-content-center" mat-dialog-actions>
+      <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1" style="background:#FF5722;color: white;" class="text-application">Save</button>
+      <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;" class="text-application">Cancel</button>
+    </div>
+
+  </form>
+</div>
+</div>

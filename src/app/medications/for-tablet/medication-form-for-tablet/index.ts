@@ -1,0 +1,1 @@
+export * from './medication-form-for-tablet.component';

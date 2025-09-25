@@ -1,0 +1,59 @@
+<div class="login-container">
+	<div class="login-content">
+		<mat-toolbar class="login-toolbar text-application" color="primary">Sign Up</mat-toolbar>
+
+		<mat-card>
+			<form [formGroup]="registerForm">
+
+				<mat-form-field>
+					<mat-icon matPrefix>email</mat-icon>
+					<mat-placeholder class="text-application"><span>Email *</span></mat-placeholder>
+					<input autofocus type="email" matInput formControlName="email" class="text-application">
+					<mat-error *ngIf="checkValidation('email')">
+						{{ emaiErrors() }}
+					</mat-error>
+				</mat-form-field>
+
+				<mat-form-field>
+					<mat-icon matPrefix>person_outline</mat-icon>
+					<mat-placeholder class="text-application"><span>Username *</span></mat-placeholder>
+					<input autofocus type="text" matInput formControlName="username" class="text-application">
+					<mat-error *ngIf="checkValidation('username')">
+						{{ fieldRequired }}
+					</mat-error>
+				</mat-form-field>
+
+				<mat-form-field>
+					<mat-icon matPrefix>lock_outline</mat-icon>
+					<mat-placeholder class="text-application"><span>Password *</span></mat-placeholder>
+					<input type="password" [type]="hide ? 'password' : 'text'" autocomplete="false" matInput formControlName="password" class="text-application">
+					<mat-icon matSuffix (click)="hide = !hide" style="cursor: pointer;">
+						{{hide ? 'visibility_off' : 'visibility'}}
+					</mat-icon>
+					<mat-hint class="text-application">Choose a password of at least eight characters, one uppercase letter and one number</mat-hint>
+					<mat-error *ngIf="checkValidation('password')">
+						{{ getErrorPassword() }}
+					</mat-error>
+				</mat-form-field>
+					
+				<hr>
+				<div class="socialMediaFlex">
+					<button 
+						style="width:50%" 
+						[disabled]="registerForm.invalid" 
+						type="submit" 
+						mat-raised-button 
+						color="primary" 
+						(click)="tryRegister(registerForm.value)" 
+						class="text-application"
+						style="font-size: 17px;">
+						Submit
+					</button>
+				</div>
+
+				<br>
+				<span class="text-application" style="text-align: center;">Already have an account ?&nbsp;<a routerLink ='/login'>Sign In</a></span>	
+			</form>
+		</mat-card>
+	</div>
+</div>

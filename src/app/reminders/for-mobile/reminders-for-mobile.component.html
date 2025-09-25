@@ -1,0 +1,97 @@
+<h1 #target class="titleTextInterface text-application">Reminders</h1>
+
+<div class="row">
+  <div class="col-md-12">
+    <button type="button" (click)="newReminder()" mat-mini-fab color="primary"
+      style="background: #004a9f;float: right;margin-top: 7px;">
+      <mat-icon style="color: white;">add</mat-icon>
+    </button>
+  </div>
+</div>
+
+<br>
+
+<div class="example-container mat-elevation-z8">
+  <div class="example-table-container">
+    <table mat-table [dataSource]="dataSource">
+
+      <ng-container matColumnDef="day">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <div class="gridForLegend">
+            <div><span>Day:</span></div>
+            <div>{{ element.day }}</div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <div class="gridForLegend">
+            <div><span>Date:</span></div>
+            <div>{{ element.date | date:'dd/MM/yyyy' }}</div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="time">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <div class="gridForLegend">
+            <div><span>Time:</span></div>
+            <div>{{ element.time }}</div>
+          </div>
+        </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="subject">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <div class="gridForLegend">
+            <div><span>Subj:</span></div>
+            <div>{{ element.subject }}</div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="star">
+        <th mat-header-cell *matHeaderCellDef> </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button [matMenuTriggerFor]="menu" [matMenuTriggerData]="{element:element}">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngStyle]="{'background': row.reminderNotDone ? 'linear-gradient(270deg, #fc6f65, #eca1a1, #fc6f65)' :'' }"></tr>
+
+    </table>
+
+    <div *ngIf="dataSource.data.length == 0" class="row justify-content-center no-results text-application">
+      No results
+    </div>
+
+    <mat-paginator [pageSizeOptions]="[8]" showFirstLastButtons aria-label="Select page of periodic elements"
+      (page)="OnPageChange(target)">
+    </mat-paginator>
+  </div>
+</div>
+
+<mat-menu #menu="matMenu">
+  <ng-template matMenuContent let-reminder="element">
+
+    <button type="button" (click)="editReminder(reminder)" mat-menu-item>
+      <mat-icon aria-label="Edit" style="color: #9C27B0;">edit</mat-icon>
+      <span>Edit</span>
+    </button>
+
+    <button type="button" mat-menu-item (click)="deleteReminder(reminder)">
+      <mat-icon style="color: #f44336;">delete</mat-icon>
+      <span>Delete</span>
+    </button>
+
+  </ng-template>
+</mat-menu>

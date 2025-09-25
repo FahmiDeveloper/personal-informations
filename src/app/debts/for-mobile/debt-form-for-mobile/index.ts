@@ -1,0 +1,1 @@
+export * from './debt-form-for-mobile.component';

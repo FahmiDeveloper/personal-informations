@@ -1,0 +1,33 @@
+.movie-image {
+  background-size: cover;
+  border-radius: 5%;
+  margin: auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+::ng-deep .my-menu {
+  width: 100%;
+}
+
+.gridForLegend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  font-size: initial;
+}
+
+.center-name-movie {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-btn {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}

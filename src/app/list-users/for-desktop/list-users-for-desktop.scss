@@ -1,0 +1,47 @@
+.widhtInput {
+    width: 90%;
+}
+
+.no-results {
+    display: flex;
+    justify-content: center;
+    padding: 14px;
+    font-size: 20px;
+}
+
+.mat-header-cell {
+    font-size: 20px;
+    min-height: 48px;
+    text-align: center;
+}
+
+.mat-cell {
+    font-size: 20px;
+    min-height: 48px;
+    border-bottom-style: none;
+    justify-content: center;
+}
+
+.mat-card-md-image {
+    width: 145px;
+    height: 200px;
+    border-radius: 10px;
+}
+
+.gridForLegend {
+    display: grid;
+    grid-template-columns: 80px 250px;
+    width: 250px;
+    margin: auto;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+td.mat-column-star {
+    width: 20px;
+    padding-right: 8px !important;
+}

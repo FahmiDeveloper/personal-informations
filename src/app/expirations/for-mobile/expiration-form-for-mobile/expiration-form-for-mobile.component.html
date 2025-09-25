@@ -1,0 +1,50 @@
+<div mat-dialog-title class="dialog-title">
+    <h3 *ngIf="!expiration.key" mat-dialog-title class="text-application">New expiration</h3>
+    <h3 *ngIf="expiration.key" mat-dialog-title class="text-application">Edit expiration</h3>
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+
+        <form (ngSubmit)="save()" #f="ngForm">
+
+            <mat-form-field color="accent">
+                <input matInput #input type="text" placeholder="Content" [(ngModel)]="expiration.contentName" name="contentName" required>
+            </mat-form-field>
+
+            <mat-form-field color="accent">
+                <mat-placeholder class="text-application"><span>Start</span></mat-placeholder>
+                <input matInput #input type="date" [(ngModel)]="expiration.dateStart" name="dateStart" class="text-application">
+            </mat-form-field>
+
+            <mat-form-field color="accent">
+                <mat-placeholder class="text-application"><span>Expiration</span></mat-placeholder>
+                <input matInput #input type="date" [(ngModel)]="expiration.dateExpiration" name="dateExpiration" class="text-application">
+            </mat-form-field>
+
+            <mat-form-field color="accent">
+                <mat-placeholder class="text-application"><span>Cost</span></mat-placeholder>
+                <input matInput #input type="text" [(ngModel)]="expiration.cost" name="cost" class="text-application">
+            </mat-form-field>
+
+            <mat-form-field color="accent">
+                <mat-select placeholder="Unit" [(ngModel)]="selectedUnit" name="selectedUnit" (selectionChange)="onSelectUnit()">
+                    <mat-option *ngFor="let unit of units" [value]="unit.unitName">
+                        {{unit.unitName}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field color="accent">
+                <textarea matInput #input type="text" placeholder="Note" [(ngModel)]="expiration.note" name="note" rows="4" cols="40"></textarea>
+            </mat-form-field>
+    
+            <div class="row justify-content-center" mat-dialog-actions>
+                <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1" style="background:#FF5722;color: white;">Save</button>
+                <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;">Cancel</button>
+            </div>
+        
+        </form>
+    </div>
+</div>

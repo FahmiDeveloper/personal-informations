@@ -1,0 +1,127 @@
+<div mat-dialog-title class="dialog-title">
+    <h2>Privileges</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-grid-list cols="4" rowHeight="4:1">
+    <mat-grid-tile></mat-grid-tile>
+    <mat-grid-tile>
+        <mat-icon color="primary" aria-label="Add">add</mat-icon>
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-icon color="accent" aria-label="Edit">edit</mat-icon>
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-icon color="warn" aria-label="Delete">delete</mat-icon>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br>
+<mat-divider></mat-divider>
+<br>
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleMovies">
+    <mat-grid-tile>Movies</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleAddMovie"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleUpdateMovie"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleDeleteMovie"></mat-checkbox>
+    </mat-grid-tile>
+
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleMovies">
+<mat-divider *ngIf="currentUser.roleMovies"></mat-divider>
+<br *ngIf="currentUser.roleMovies">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleAnimes">
+    <mat-grid-tile>Animes</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleAddAnime"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleUpdateAnime"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleDeleteAnime"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleAnimes">
+<mat-divider *ngIf="currentUser.roleAnimes"></mat-divider>
+<br *ngIf="currentUser.roleAnimes">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleSeries">
+    <mat-grid-tile>Series</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleAddSerie"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleUpdateSerie"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleDeleteSerie"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleSeries">
+<mat-divider *ngIf="currentUser.roleSeries"></mat-divider>
+<br *ngIf="currentUser.roleSeries">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleFiles">
+    <mat-grid-tile>Files</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleAddFile"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleUpdateFile"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleDeleteFile"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleFiles">
+<mat-divider *ngIf="currentUser.roleFiles"></mat-divider>
+<br *ngIf="currentUser.roleFiles">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleDebts">
+    <mat-grid-tile>Debts</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleAddDebt"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleUpdateDebt"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox style="margin-top: 7px;" [(ngModel)]="currentUser.roleDeleteDebt"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br>
+
+<div class="row justify-content-center" mat-dialog-actions>
+    <button mat-button type="button" (click)="changePrivliegeStatus(currentUser)" [mat-dialog-close]="1" style="background:#FF5722;color: white;">Save</button>
+</div>
+      

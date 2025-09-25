@@ -1,0 +1,102 @@
+<h1 class="titleTextInterface text-application">Expirations</h1>
+
+<div class="row">
+
+    <div class="col-md-2">
+        <mat-form-field class="text-application">
+            <mat-label>Content</mat-label>
+            <input  matInput type="text" name="content" (keyup)="getAllExpirations()" [(ngModel)]="content"/>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-10">
+        <button 
+            type="button" 
+            (click)="newExpiration()" 
+            mat-mini-fab 
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>   
+
+</div>
+
+<br>
+
+<table class="table">
+    <thead style="background: #263238;color: white;">
+      <tr class="text-application text-center">
+        <th scope="col">Content</th>
+        <th scope="col">Cost</th>
+        <th scope="col">Start</th>
+        <th scope="col">End</th>
+        <th scope="col">Duration</th>
+        <th scope="col">Rest</th>
+        <th scope="col" [ngStyle]="{'width' : (innerWidth < 1366 || innerWidth == 1366) ? '15rem': '30rem'}">Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let expiration of (expirationsList | paginate: { itemsPerPage: 8 , currentPage: p })" class="text-application text-center" (contextmenu)="onRightClick($event, expiration)" style="background-color: white;">
+        <td>{{ expiration.contentName }}</td>
+        <td>
+            <span *ngIf="expiration.cost">{{ expiration.cost }}</span>
+            <span *ngIf="!expiration.cost">-</span>
+        </td>
+        <td>{{ expiration.dateStart | date:'dd/MM/yyyy' }}</td>
+        <td>{{ expiration.dateExpiration | date:'dd/MM/yyyy' }}</td>
+        <td>{{ expiration.duration }}</td>
+        <td>
+            <span *ngIf="expiration.isExpired" style="color: red;">{{ expiration.restdays }}</span>
+            <span *ngIf="!expiration.isExpired && !expiration.soonToExpire" style="color: green;">{{ expiration.restdays }}</span>
+            <span *ngIf="!expiration.isExpired && expiration.soonToExpire" style="color: #ff6900;">{{ expiration.restdays }}</span>
+        </td>
+        <td [ngStyle]="{'width' : (innerWidth < 1366 || innerWidth == 1366) ? '15rem': '30rem'}">
+            <span *ngIf="expiration.note">{{ expiration.note }}</span>
+            <span *ngIf="!expiration.note">-</span>
+        </td>
+      </tr>
+    </tbody>
+</table>
+
+<br *ngIf="expirationsList.length !== 0">
+
+<div *ngIf="expirationsList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="expirationsList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>
+
+<div 
+    style="visibility: hidden; position: fixed;" 
+    [style.left]="menuTopLeftPosition.x" 
+    [style.top]="menuTopLeftPosition.y" 
+    [matMenuTriggerFor]="rightMenu">
+</div> 
+ 
+<mat-menu #rightMenu="matMenu"> 
+
+  <ng-template matMenuContent let-expiration="expiration">
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="editExpiration(expiration)"
+        class="text-application">
+        <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+        <span>Edit</span>
+    </button>
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="deleteExpiration(expiration.key)"
+        class="text-application">
+        <mat-icon style="color: #f44336;">delete</mat-icon>
+        <span>Delete</span>
+    </button>  
+
+  </ng-template>
+
+</mat-menu>

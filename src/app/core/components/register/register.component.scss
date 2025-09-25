@@ -1,0 +1,37 @@
+:host {
+  display: flex;
+  justify-content: center;
+  margin: 45px 0px;
+}
+
+.login-container {
+  margin-top: 50px;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  display: flex;
+}
+
+form {
+  width: 100%;
+}
+
+.login-content {
+  width: 400px;
+  display: block;
+  margin: 0 auto;
+}
+
+.login-toolbar {
+  justify-content: center;
+}
+
+.mat-form-field {
+  width: 100%;
+  display: block;
+}
+
+.socialMediaFlex {
+  display:flex;
+  justify-content: space-around;
+}

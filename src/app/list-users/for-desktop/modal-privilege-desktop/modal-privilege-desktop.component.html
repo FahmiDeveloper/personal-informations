@@ -1,0 +1,121 @@
+<div mat-dialog-title class="dialog-title">
+    <h2 class="text-application">Privileges</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-grid-list cols="4" rowHeight="4:1">
+    <mat-grid-tile></mat-grid-tile>
+    <mat-grid-tile>
+        <mat-icon color="primary" aria-label="Add">add</mat-icon>
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-icon color="accent" aria-label="Edit">edit</mat-icon>
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-icon color="warn" aria-label="Delete">delete</mat-icon>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br>
+<mat-divider></mat-divider>
+<br>
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleMovies">
+    <mat-grid-tile class="text-application" style="font-size: 20px;">Movies</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleAddMovie" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleUpdateMovie" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleDeleteMovie" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleMovies">
+<mat-divider *ngIf="currentUser.roleMovies"></mat-divider>
+<br *ngIf="currentUser.roleMovies">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleAnimes">
+    <mat-grid-tile class="text-application" style="font-size: 20px;">Animes</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleAddAnime" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleUpdateAnime" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleDeleteAnime" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleAnimes">
+<mat-divider *ngIf="currentUser.roleAnimes"></mat-divider>
+<br *ngIf="currentUser.roleAnimes">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleSeries">
+    <mat-grid-tile class="text-application" style="font-size: 20px;">Series</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleAddSerie" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleUpdateSerie" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleDeleteSerie" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleSeries">
+<mat-divider *ngIf="currentUser.roleSeries"></mat-divider>
+<br *ngIf="currentUser.roleSeries">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleFiles">
+    <mat-grid-tile class="text-application" style="font-size: 20px;">Files</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleAddFile" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleUpdateFile" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleDeleteFile" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<br *ngIf="currentUser.roleFiles">
+<mat-divider *ngIf="currentUser.roleFiles"></mat-divider>
+<br *ngIf="currentUser.roleFiles">
+
+<mat-grid-list cols="4" rowHeight="4:1" *ngIf="currentUser.roleDebts">
+    <mat-grid-tile class="text-application" style="font-size: 20px;">Debts</mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleAddDebt" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleUpdateDebt" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <mat-checkbox [(ngModel)]="currentUser.roleDeleteDebt" (ngModelChange)="changePrivliegeStatus(currentUser)"></mat-checkbox>
+    </mat-grid-tile>
+</mat-grid-list>
+      

@@ -1,0 +1,29 @@
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+     
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.example-card {
+  max-width: 400px;
+}
+
+.mat-paginator {
+  justify-content: right;
+}
+
+.dialog-responsive {
+  width: 40%;
+}
+
+@media only screen and (max-width: 760px) {
+  .dialog-responsive {
+      width: 100%;
+  }
+}

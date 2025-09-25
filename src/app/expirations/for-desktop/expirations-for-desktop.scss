@@ -1,0 +1,25 @@
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+  
+table {
+  width: 100%;
+}
+     
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.dialog-responsive {
+  width: 40%;
+}
+
+@media only screen and (max-width: 760px) {
+  .dialog-responsive {
+      width: 100%;
+  }
+}

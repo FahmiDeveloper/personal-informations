@@ -1,0 +1,147 @@
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+
+.notification-container {
+  margin: 0 auto;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.notification-header h2 {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.notification-header .notification-not-done {
+  font-size: 14px;
+  color: #999;
+}
+
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  /* Ensures icon and content are aligned */
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: #f0f0f0;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  /* Prevents shrinking */
+  width: 40px;
+  /* Ensures all icons have the same width */
+  height: 40px;
+  /* Ensures square shape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #666;
+  margin-right: 12px;
+  /* Ensures proper spacing between icon and content */
+}
+
+.notification-content {
+  flex: 1;
+  /* Makes content take remaining space */
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.notification-message {
+  font-size: 14px;
+  color: #666;
+}
+
+.notification-date-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.search-container {
+  position: relative;
+
+  .normal-search {
+      .search {
+          border: none;
+          height: 2.375rem;
+          padding-left: 2.5rem;
+          padding-right: 1.25rem;
+          background-color: #f3f3f9;
+          box-shadow: none;
+          border-radius: 1.875rem;
+          outline: 0;
+      }
+
+      .search-icon {
+          position: absolute;
+          font-size: 1rem;
+          line-height: 2.375rem;
+          left: 0.813rem;
+          top: 0;
+          color: #74788d;
+      }
+  }
+
+  .search-menu-btn {
+      font-size: 18px;
+      height: 42px;
+      width: 42px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      outline: 0;
+  }
+
+  .search-menu-btn:hover,
+  .search-menu-btn:focus {
+      .search-icon {
+          color: #699dfa;
+      }
+  }
+}

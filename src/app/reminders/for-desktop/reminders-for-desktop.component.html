@@ -1,0 +1,71 @@
+<h1 class="titleTextInterface text-application">Reminders</h1>
+
+<br>
+
+<div class="row">
+
+  <div class="col-md-10"></div>
+
+  <div class="col-md-2">
+    <button type="button" (click)="newReminder()" mat-mini-fab style="background: #263238;float: right;">
+      <mat-icon style="color: white;">add</mat-icon>
+    </button>
+  </div>
+
+</div>
+
+<br>
+
+<table class="table">
+  <thead style="background: #263238;color: white;">
+    <tr class="text-application text-center">
+      <th scope="col">Day</th>
+      <th scope="col">Date</th>
+      <th scope="col">Time</th>
+      <th scope="col">Subject</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let reminder of (remindersList | paginate: { itemsPerPage: 8 , currentPage: p })"
+      class="text-application text-center" (contextmenu)="onRightClick($event, reminder)"
+      style="background-color: white;"
+      [ngStyle]="{'background': reminder.reminderNotDone ? 'linear-gradient(270deg, #fc6f65, #eca1a1, #fc6f65)' :'' }">
+      <td>{{ reminder.day }}</td>
+      <td>{{ reminder.date | date:'dd/MM/yyyy' }}</td>
+      <td>{{ reminder.time }}</td>
+      <td>{{ reminder.subject }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<br *ngIf="remindersList.length !== 0">
+
+<div *ngIf="remindersList.length !== 0" class="pagination">
+  <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="remindersList.length == 0" class="row justify-content-center no-results text-application">
+  No results
+</div>
+
+<div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
+  [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="rightMenu">
+</div>
+
+<mat-menu #rightMenu="matMenu">
+
+  <ng-template matMenuContent let-reminder="reminder">
+
+    <button type="button" mat-menu-item (click)="editReminder(reminder)" class="text-application">
+      <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+      <span>Edit</span>
+    </button>
+
+    <button type="button" mat-menu-item (click)="deleteReminder(reminder)" class="text-application">
+      <mat-icon style="color: #f44336;">delete</mat-icon>
+      <span>Delete</span>
+    </button>
+
+  </ng-template>
+
+</mat-menu>

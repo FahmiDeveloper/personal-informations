@@ -1,0 +1,95 @@
+<h1 #target class="titleTextInterface text-application">Notes</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <mat-form-field style="width: 200px;">
+            <mat-label>Keyword</mat-label>
+            <mat-select name="keywordSelected" class="text-application" [(ngModel)]="keywordSelected" (openedChange)="onSelectOpened($event)" (selectionChange)="getAllNotes()">
+                <input #searchInput class="input-search text-application" matInput type="text" name="keywordForSearch" (keyup)="filterOptions()" [(ngModel)]="keywordForSearch"/>
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let keyword of keywordsList" [value]="keyword">
+                    <span class="text-application">{{keyword}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button 
+            type="button" 
+            (click)="newNote()" 
+            mat-mini-fab 
+            style="background: #004a9f;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>
+</div>
+
+<br>
+
+<div class="example-list">
+
+	<p class="empty-label text-application" *ngIf="notesList?.length === 0">Empty list</p>
+
+    <div class="example-box" *ngFor="let note of (notesList | paginate: { itemsPerPage: 8 , currentPage: p })" (click)="openMenuTrigger($event, note)">
+        <span class="text-application">
+            <span style="font-size: x-large;">
+                {{ note.contentNote }}
+            </span>    
+        </span>
+    </div>
+
+</div>
+
+<div 
+    style="visibility: hidden; position: fixed;" 
+    [style.left]="menuTopLeftPosition.x" 
+    [style.top]="menuTopLeftPosition.y" 
+    [matMenuTriggerFor]="rightMenu">
+</div> 
+ 
+<mat-menu #rightMenu="matMenu"> 
+
+  <ng-template matMenuContent let-note="note">
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="editNote(note)"
+        class="text-application">
+        <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+        <span>Edit</span>
+    </button>
+
+    <button
+        mat-menu-item 
+        class="text-application"
+        (click)="copyText(note.contentNote)">
+        <mat-icon style="color: black">file_copy</mat-icon>
+        Copy
+    </button>
+
+    <button
+        *ngIf="note.path"
+        mat-menu-item 
+        class="text-application"
+        (click)="viewPath(note.path)">
+        <mat-icon style="color: #3f51b5">remove_red_eye</mat-icon>
+        View
+    </button>
+
+    <button
+        type="button"
+        mat-menu-item 
+        (click)="deleteNote(note.key)"
+        class="text-application">
+        <mat-icon style="color: #f44336;">delete</mat-icon>
+        <span>Delete</span>
+    </button>  
+
+  </ng-template> 
+
+</mat-menu>
+
+<br>
+
+<div *ngIf="notesList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange(target)" [responsive]="true"></pagination-controls>
+</div>

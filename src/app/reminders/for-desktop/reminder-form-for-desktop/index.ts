@@ -1,0 +1,1 @@
+export * from './reminder-form-for-desktop.component';

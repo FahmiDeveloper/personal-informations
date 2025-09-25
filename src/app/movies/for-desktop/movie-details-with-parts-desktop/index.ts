@@ -1,0 +1,1 @@
+export * from './movie-details-with-parts-desktop.component';

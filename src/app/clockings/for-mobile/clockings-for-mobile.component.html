@@ -1,0 +1,238 @@
+<h1 #target class="titleTextInterface text-application">Clockings</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-label>Month</mat-label>
+            <mat-select name="monthSelected" class="text-application" [(ngModel)]="monthSelected" (selectionChange)="getAllClockings()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let month of monthsList" [value]="month.monthNbr">
+                    <span class="text-application">{{month.monthName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button
+            type="button" 
+            (click)="newClocking()" 
+            mat-mini-fab 
+            color="primary" 
+            style="background: #004a9f;float: right;margin-top: 7px;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div> 
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-placeholder>Subject</mat-placeholder>
+            <mat-select name="subjectSelectedId" class="text-application" [(ngModel)]="subjectSelectedId" (selectionChange)="getAllClockings()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let subject of subjectList" [value]="subject.id">
+                    <span class="text-application">{{subject.subjectName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>
+
+<br>
+ 
+<div class="row">
+    <div class="col-md-4">
+        <span class="text-application" style="font-size: initial;">Total clockings late in {{ currentMonth }}&nbsp;{{ currentYear }}:<br>
+            <span style="font-weight: 700;">
+                <span *ngIf="sumClockingLate < 60 || !sumClockingLate">{{ totalClockingLate }}&nbsp;Min</span>
+                <span *ngIf="sumClockingLate == 60 || sumClockingLate > 60">{{ totalClockingLateByHoursMinute }}</span>
+            </span>         
+        </span>
+        <br><br>
+        <span class="text-application" style="font-size: initial;">Vacation limit days in {{ currentMonth }}&nbsp;{{ currentYear }}:<br>
+            <span style="font-weight: 700;">
+                <span *ngIf="vacationLimitDays > 0" style="color: green;">{{ vacationLimitDays }}</span>
+                <span *ngIf="vacationLimitDays == 0 || vacationLimitDays < 0" style="color: red;">{{ vacationLimitDays }}</span>
+                day(s)
+            </span>              
+        </span>
+    </div>
+</div>
+
+<br>
+
+<div class="row" *ngIf="showDeleteAllClockingsButtton">
+    <div class="col-md-11"></div>
+    <div class="col-md-1">
+        <button 
+            mat-flat-button 
+            color="warn"
+            (click)="deleteAllClockings(contentLoading)" 
+            class="text-application"
+            style="float: right;">
+            <mat-icon style="color: white">delete</mat-icon>
+            Delete all clockings
+        </button>
+    </div>       
+</div>
+
+<br *ngIf="showDeleteAllClockingsButtton">
+  
+<div class="example-container mat-elevation-z8">
+    <div class="example-table-container">
+        <table mat-table [dataSource]="dataSource">
+
+            <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend">
+                        <div><span>Date:</span></div>
+                        <div>{{ element.dateClocking | date:'dd/MM/yyyy' }}</div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="day">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend">
+                        <div><span>Day:</span></div>
+                        <div>{{ element.day }}</div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend">
+                        <div><span>Time:</span></div>
+                        <div>
+                            <span *ngIf="element.timeClocking">{{ element.timeClocking }}</span>
+                            <span *ngIf="!element.timeClocking">-</span>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="clockingNbr">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend">
+                        <div><span>Nbr:</span></div>
+                        <div>
+                            <span *ngIf="element.clockingNbr">{{ element.clockingNbr }}</span>
+                            <span *ngIf="!element.clockingNbr">-</span>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="subject">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend">
+                        <div><span>Subj:</span></div>
+                        <div>
+                            <span *ngIf="element.subjectId">
+                                <span *ngIf="element.subjectId == 1">Work on sunday</span>
+                                <span *ngIf="element.subjectId == 2">Take vacation</span>
+                                <span *ngIf="element.subjectId == 3">Take one hour</span>
+                                <span *ngIf="element.subjectId == 4">Take two hours</span>
+                                <span *ngIf="element.subjectId == 5">Take three hours</span>
+                                <span *ngIf="element.subjectId == 6">Work half day</span>
+                                <span *ngIf="element.subjectId == 7">Public holiday</span>
+                            </span>
+                            <span *ngIf="!element.subjectId">-</span>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="restVacation">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend">
+                        <div><span>Solde:</span></div>
+                        <div><span [ngStyle]="{'color': element.restVacationDays > 0 ? 'green' : 'red'}">{{ element.restVacationDays }}</span></div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="note">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="gridForLegend" *ngIf="!element.priority">
+                        <div><span>Note:</span></div>
+                        <div>
+                            <span *ngIf="element.note">{{ element.note }}</span>
+                            <span *ngIf="!element.note">-</span>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="star">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let element"> 
+                    <button mat-icon-button [matMenuTriggerFor]="menu" [matMenuTriggerData]="{element:element}">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+    
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <div *ngIf="dataSource.data.length == 0" class="row justify-content-center no-results text-application">
+            No results
+        </div>
+    
+        <mat-paginator 
+            [pageSizeOptions]="[8]"
+            showFirstLastButtons 
+            aria-label="Select page of periodic elements"
+            (page)="OnPageChange(target)">
+        </mat-paginator>
+    </div>
+</div>
+  
+<mat-menu #menu="matMenu">
+    <ng-template matMenuContent let-clocking="element">
+
+        <button
+            type="button"
+            (click)="editClocking(clocking)"
+            mat-menu-item>
+            <mat-icon aria-label="Edit" style="color: #9C27B0;">edit</mat-icon>
+            <span>Edit</span>
+        </button>
+
+        <button 
+            type="button"
+            mat-menu-item 
+            (click)="deleteClocking(clocking.key)">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            <span>Delete</span>
+        </button>
+
+    </ng-template>
+</mat-menu>
+
+<ng-template #contentLoading>
+
+    <div mat-dialog-title class="dialog-title">
+        <h2 class="text-application">Delete clockings</h2>
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+  
+    <div class="modal-body text-application">
+      <div *ngIf="isLoading">
+        <mat-spinner style="margin-left:100px; margin-top: 30px;"></mat-spinner><br>
+        <h3 class="text-application" style="text-align: center;">Delete all clockings in progress...</h3>
+      </div>
+    </div>
+
+</ng-template>

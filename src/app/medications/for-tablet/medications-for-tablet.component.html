@@ -1,0 +1,150 @@
+<h1 class="titleTextInterface text-application">Medications</h1>
+
+<br>
+
+<div class="row">
+    <div class="col-md-4">
+        <mat-form-field class="text-application">
+            <mat-label>Medication Name</mat-label>
+            <input matInput type="text" name="medicationName" (keyup)="getAllMedications()" [(ngModel)]="medicationName"/>
+        </mat-form-field>
+    </div>
+    <div class="col-md-4">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-label>Disease</mat-label>
+            <mat-select name="subjectSelectedId" class="text-application" [(ngModel)]="diseaseSelectedId" (selectionChange)="getAllMedications()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let disease of diseaseList" [value]="disease.id">
+                    <span class="text-application">{{disease.diseaseName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="col-md-4">
+        <button 
+            type="button" 
+            (click)="newMedication()" 
+            mat-mini-fab 
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>     
+</div>
+
+<br>
+
+<div [ngClass]="orientation == 'Portrait' ? 'grid-portrait' : 'grid-landscape'">
+	<div class="card" *ngFor="let medication of (medicationsList | paginate: { itemsPerPage: itemsPerPage , currentPage: p })">
+        <img *ngIf="medication.urlPicture" [src]="medication.urlPicture" class="card-img-top img-fluid" (click)="openMenuTrigger($event, medication)">
+        <img *ngIf="!medication.urlPicture" src="/assets/pictures/NoImageAvailable.png" class="card-img-top img-fluid" (click)="openMenuTrigger($event, medication)">
+		<div class="card-body align-items-center d-flex justify-content-center text-center text-application">
+			<h5 class="card-title" style="cursor: pointer;" (click)="copyText(medication.medicationName)">
+                {{ medication.medicationName }}
+            </h5>
+		</div>    
+	</div>   
+</div>
+
+<div 
+    style="visibility: hidden; position: fixed;" 
+    [style.left]="menuTopLeftPosition.x" 
+    [style.top]="menuTopLeftPosition.y" 
+    [matMenuTriggerFor]="rightMenu">
+</div> 
+ 
+<mat-menu #rightMenu="matMenu"> 
+
+    <ng-template matMenuContent let-medication="medication">
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="viewPicture(medication, showPicture)"
+            class="text-application">
+            <mat-icon style="color: #ff4081;">remove_red_eye</mat-icon> 
+            <span>Picture</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="viewMedicationFor(medication.medicationFor)"
+            class="text-application">
+            <mat-icon style="color: #ff4081;">remove_red_eye</mat-icon> 
+            <span>For</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="viewPrice(medication.price)"
+            class="text-application">
+            <mat-icon style="color: #ff4081;">remove_red_eye</mat-icon> 
+            <span>Price</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="viewUtilisation(medication.utilisation)"
+            class="text-application">
+            <mat-icon style="color: #ff4081;">remove_red_eye</mat-icon> 
+            <span>Utilisation</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="editMedication(medication)"
+            class="text-application">
+            <mat-icon style="color: #9C27B0">edit</mat-icon>
+            <span>Edit</span>
+        </button>
+
+        <button
+            *ngIf="medication.urlPicture"
+            type="button"
+            mat-menu-item 
+            (click)="downloadPicture(medication)"
+            class="text-application">
+            <mat-icon style="color: #2E7D32;">cloud_download</mat-icon>
+            <span>Download</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="deleteMedication(medication.key)"
+            class="text-application">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            <span>Delete</span>
+        </button> 
+
+    </ng-template> 
+
+</mat-menu>
+
+<br>
+
+<div *ngIf="medicationsList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="medicationsList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>
+
+<ng-template #showPicture>
+
+    <div mat-dialog-title class="dialog-title">
+      <h2 class="text-application">{{ FileName }}</h2>
+      <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <div class="row">
+      <img *ngIf="pictureFile" [src]='pictureFile' class="pictureFile">
+    </div>       
+  
+</ng-template>

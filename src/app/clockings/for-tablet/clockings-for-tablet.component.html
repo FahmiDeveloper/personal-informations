@@ -1,0 +1,248 @@
+<h1 class="titleTextInterface text-application">Clockings</h1>
+
+<br>
+
+<div class="row">
+
+    <div class="col-md-5">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-label>Month</mat-label>
+            <mat-select name="monthSelected" class="text-application" [(ngModel)]="monthSelected" (selectionChange)="getAllClockings()">
+                <mat-option *ngFor="let month of monthsList" [value]="month.monthNbr">
+                    <span class="text-application">{{month.monthName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-4">
+        <mat-form-field class="text-application" style="width: 200px;">
+            <mat-placeholder>Subject</mat-placeholder>
+            <mat-select name="subjectSelectedId" class="text-application" [(ngModel)]="subjectSelectedId" (selectionChange)="getAllClockings()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let subject of subjectList" [value]="subject.id">
+                    <span class="text-application">{{subject.subjectName}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-3">
+        <button 
+            type="button" 
+            (click)="newClocking()" 
+            mat-mini-fab 
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div> 
+
+</div>
+
+<br>
+
+<mat-grid-list cols=2 rowHeight="30px" class="text-application">
+
+    <mat-grid-tile>Total clockings late in {{ currentMonth }}&nbsp;{{ currentYear }}</mat-grid-tile>
+
+    <mat-grid-tile> Vacation limit days in {{ currentMonth }}&nbsp;{{ currentYear }}</mat-grid-tile>
+
+    <mat-grid-tile>
+        <span *ngIf="sumClockingLate < 60 || !sumClockingLate">{{ totalClockingLate }}&nbsp;Min</span>
+        <span *ngIf="sumClockingLate == 60 || sumClockingLate > 60">{{ totalClockingLateByHoursMinute }}</span>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+        <span *ngIf="vacationLimitDays > 0" style="color: green;">{{ vacationLimitDays }}</span>
+        <span *ngIf="vacationLimitDays == 0 || vacationLimitDays < 0" style="color: red;">{{ vacationLimitDays }}</span>
+        &nbsp;day(s)
+    </mat-grid-tile>
+
+</mat-grid-list>
+
+<br *ngIf="showDeleteAllClockingsButtton">
+
+<div class="row" *ngIf="showDeleteAllClockingsButtton">
+
+    <div class="col-md-11"></div>
+
+    <div class="col-md-1">
+        <button 
+            mat-flat-button 
+            color="warn"
+            (click)="deleteAllClockings(contentLoading)" 
+            class="text-application"
+            style="float: right;">
+            <mat-icon style="color: white">delete</mat-icon>
+            Delete all clockings
+        </button>
+    </div>     
+
+</div>
+
+<br>
+
+<div class="row">
+
+    <div *ngFor="let clocking of (clockingsList | paginate: { itemsPerPage: 6 , currentPage: p })" class="mx-auto my-3 col-md-4">
+
+        <mat-card class="text-application example-card-tablet">
+
+            <mat-card-header style="height: 80px;">
+                <mat-card-title style="margin-top: 20px;font-size: larger;">{{ clocking.dateClocking | date:'dd/MM/yyyy' }}</mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+
+                <mat-grid-list cols="12" rowHeight="35px">
+
+                    <mat-grid-tile colspan="4">Day</mat-grid-tile>             
+                    <mat-grid-tile colspan="8"><span>{{ clocking.day }}</span></mat-grid-tile>
+                    
+                    <br>
+
+                    <mat-grid-tile colspan="4">Time</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <span *ngIf="clocking.timeClocking">{{ clocking.timeClocking }}</span>
+                        <span *ngIf="!clocking.timeClocking">-</span>
+                    </mat-grid-tile>
+
+                    <br>
+
+                    <mat-grid-tile colspan="4">Nbr</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <span *ngIf="clocking.clockingNbr">{{ clocking.clockingNbr }}</span>
+                        <span *ngIf="!clocking.clockingNbr">-</span>
+                    </mat-grid-tile>
+                    
+                    <br>
+
+                    <mat-grid-tile colspan="4">Subj</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <span *ngIf="clocking.subjectId">
+                            <span *ngIf="clocking.subjectId == 1">Work on sunday</span>
+                            <span *ngIf="clocking.subjectId == 2">Take vacation</span>
+                            <span *ngIf="clocking.subjectId == 3">Take one hour</span>
+                            <span *ngIf="clocking.subjectId == 4">Take two hours</span>
+                            <span *ngIf="clocking.subjectId == 5">Take three hours</span>
+                            <span *ngIf="clocking.subjectId == 6">Work half day</span>
+                            <span *ngIf="clocking.subjectId == 7">Public holiday</span>
+                        </span>
+                        <span *ngIf="!clocking.subjectId">-</span>
+                    </mat-grid-tile>
+
+                    <br>
+
+                    <mat-grid-tile colspan="4">Solde</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <span [ngStyle]="{'color': clocking.restVacationDays > 0 ? 'green' : 'red'}">{{ clocking.restVacationDays }}</span>
+                    </mat-grid-tile>
+                    
+                    <br>
+                    
+                    <mat-grid-tile colspan="4">Note</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">
+                        <mat-icon *ngIf="clocking.note" style="color: black;" (click)="viewNote(clocking.note)">note</mat-icon>         
+                        <i *ngIf="!clocking.note" class="fa fa-minus-circle" aria-hidden="true"></i>
+                    </mat-grid-tile>
+
+                </mat-grid-list>
+
+            </mat-card-content>
+
+            <mat-card-actions>
+
+                <div class="row justify-content-center">
+
+                    <button 
+                        type="button"
+                        mat-button
+                        [matMenuTriggerFor]="menu" 
+                        class="style-button text-application">
+                        <mat-icon style="color: #07609b">calendar_view_day</mat-icon>
+                        Actions
+                    </button>
+
+                    <mat-menu #menu="matMenu" class="my-menu" xPosition="before">
+
+                        <button
+                            mat-menu-item 
+                            class="text-application"
+                            (click)="editClocking(clocking)">
+                            <mat-icon style="color: #9C27B0">edit</mat-icon>
+                            Edit
+                        </button>
+
+                        <button
+                            mat-menu-item 
+                            class="text-application"
+                            (click)="deleteClocking(clocking)">
+                            <mat-icon style="color: #f44336">delete</mat-icon>
+                            Delete
+                        </button>
+
+                    </mat-menu>
+
+                </div>
+
+            </mat-card-actions> 
+
+        </mat-card>
+        
+    </div>
+
+</div>
+
+<br *ngIf="clockingsList.length !== 0">
+
+<div *ngIf="clockingsList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="clockingsList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>
+
+<mat-menu #contextMenu="matMenu" xPosition="before">
+
+	<ng-template matMenuContent let-clocking="element">
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="editClocking(clocking)"
+            class="text-application">
+            <mat-icon style="color: #9C27B0" aria-label="Edit">edit</mat-icon>
+            <span>Edit</span>
+        </button>
+
+        <button
+            type="button"
+            mat-menu-item 
+            (click)="deleteClocking(clocking.key)"
+            class="text-application">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            <span>Delete</span>
+        </button>  
+
+	</ng-template>
+
+</mat-menu>
+
+<ng-template #contentLoading>
+
+    <div mat-dialog-title class="dialog-title">
+        <h2 class="text-application">Delete clockings</h2>
+        <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+  
+    <div class="modal-body text-application">
+      <div *ngIf="isLoading">
+        <mat-spinner style="margin-left:100px; margin-top: 30px;"></mat-spinner><br>
+        <h3 class="text-application" style="text-align: center;">Delete all clockings in progress...</h3>
+      </div>
+    </div>
+
+</ng-template>

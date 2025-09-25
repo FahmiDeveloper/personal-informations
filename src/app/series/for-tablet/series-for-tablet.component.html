@@ -1,0 +1,158 @@
+<h1 class="titleTextInterface text-application">Series</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <mat-form-field class="widthInput text-application">
+            <mat-label>Name</mat-label>
+            <input matInput type="text" name="serieName" (keyup)="getAllSeries()" [(ngModel)]="serieName" />
+        </mat-form-field>
+    </div>
+    <div class="col-md-4">
+        <mat-form-field class="widthInput">
+            <mat-label class="text-application">Status</mat-label>
+            <mat-select class="text-application" name="statusId" [(ngModel)]="statusId"
+                (selectionChange)="getAllSeries()">
+                <mat-option value=""></mat-option>
+                <mat-option *ngFor="let statusSerie of statusSeries" [value]="statusSerie.id">
+                    <span class="text-application">{{statusSerie.status}}</span>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="col-md-3">
+
+        <ng-container *ngIf="statusId">
+            <mat-form-field class="widthInput" *ngIf="statusId == 1">
+                <mat-select [(ngModel)]="optionSelected" name="optionSelected" class="text-application"
+                    (selectionChange)="getAllSeries()">
+                    <mat-option value=""></mat-option>
+                    <mat-option [value]="1" class="text-application">Not yet aired</mat-option>
+                    <mat-option [value]="2" class="text-application">{{nbrSeriesToCheckToday}}&nbsp;serie(s) to check
+                        Today</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-checkbox *ngIf="statusId == 3" name="dislike" [(ngModel)]="dislike" (ngModelChange)="getAllSeries()"
+                class="mat-checkbox-layout" style="margin-top: 10%;">
+                <span class="text-application">Dislike</span>
+            </mat-checkbox>
+        </ng-container>
+
+        <ng-container *ngIf="!statusId">
+            <mat-checkbox (change)="getAllSeries()" [(ngModel)]="showSeriesNotChecked" class="text-application"
+                style="margin-top: 1.3rem;">Not check ({{nbrSeriesNotChecked}})</mat-checkbox>
+        </ng-container>
+
+    </div>
+    <div class="col-md-1">
+        <button type="button" (click)="newSerie()" mat-mini-fab color="primary"
+            style="background: #263238;float: right;">
+            <mat-icon style="color: white;">add</mat-icon>
+        </button>
+    </div>
+</div>
+
+<br>
+
+<div [ngClass]="orientation == 'Portrait' ? 'grid-portrait' : 'grid-landscape'">
+    <div class="card" *ngFor="let serie of (seriesList | paginate: { itemsPerPage: itemsPerPage , currentPage: p })">
+        <img *ngIf="serie.imageUrl" [src]="serie.imageUrl" class="card-img-top img-fluid"
+            (click)="openMenuTrigger($event, serie)">
+        <img *ngIf="!serie.imageUrl" src="/assets/pictures/NoImageAvailable.png" class="card-img-top img-fluid"
+            (click)="openMenuTrigger($event, serie)">
+        <div class="card-body align-items-center d-flex justify-content-center text-center text-application">
+            <h5 class="card-title" style="cursor: pointer;" (click)="copyText(serie.nameSerie)">
+                {{ serie.nameSerie }}
+            </h5>
+        </div>
+    </div>
+</div>
+
+<div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x"
+    [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="rightMenu">
+</div>
+
+<mat-menu #rightMenu="matMenu">
+
+    <ng-template matMenuContent let-serie="serie">
+
+        <button *ngIf="!serie.season || (serie.season && serie.season > 1)" mat-menu-item class="text-application">
+            Status&nbsp;&nbsp;
+            <mat-icon *ngIf="serie.statusId == 1" style="color:goldenrod;">access_time</mat-icon>
+            <mat-icon *ngIf="serie.statusId == 2" style="color: red;">file_download</mat-icon>
+            <mat-icon *ngIf="serie.statusId == 3 && !serie.notLiked" style="color: green;">remove_red_eye</mat-icon>
+            <mat-icon *ngIf="serie.statusId == 4" style="color: red;">remove_red_eye</mat-icon>
+            <mat-icon *ngIf="serie.statusId == 5" style="color:#07609b;">search</mat-icon>
+            <mat-icon *ngIf="serie.notLiked" style="color: red;">thumb_down_alt</mat-icon>
+        </button>
+
+        <button
+            *ngIf="(!statusId && !serie.season && serie.statusId !== 3) || (statusId && statusId !== 3) || showSeriesNotChecked"
+            mat-menu-item class="text-application">
+            Eps&nbsp;&nbsp;&nbsp;&nbsp;
+            <span *ngIf="serie.currentEpisode">{{ serie.currentEpisode }}</span>
+            <span *ngIf="!serie.currentEpisode">?</span>
+            /
+            <span *ngIf="serie.totalEpisodes">{{ serie.totalEpisodes }}</span>
+            <span *ngIf="!serie.totalEpisodes">?</span>
+        </button>
+
+        <button *ngIf="!statusId && serie.season && serie.season == 1" mat-menu-item (click)="showDetailsSerie(serie)"
+            class="style-button text-application center-btn">
+            <mat-icon style="color: #a54403">view_list</mat-icon>
+            <span>Seasons</span>
+        </button>
+
+        <button *ngIf="statusId || !serie.season || (serie.season && serie.season > 1)" mat-menu-item
+            class="text-application" (click)="editSerie(serie)">
+            <mat-icon style="color: #9C27B0">edit</mat-icon>
+            Edit
+        </button>
+
+        <button
+            *ngIf="(statusId || !serie.season || (serie.season && serie.season > 1)) && serie.statusId == 1 && serie.path"
+            mat-menu-item class="text-application" (click)="followLink(serie.path)">
+            <mat-icon style="color: #3f51b5">remove_red_eye</mat-icon>
+            Check
+        </button>
+
+        <button
+            *ngIf="(statusId || !serie.season || (serie.season && serie.season > 1)) && serie.statusId == 2 && serie.path"
+            mat-menu-item class="text-application" (click)="followLink(serie.path)">
+            <mat-icon style="color: green">cloud_download</mat-icon>
+            Download
+        </button>
+
+        <button
+            *ngIf="(statusId || !serie.season || (serie.season && serie.season > 1)) && serie.statusId == 4 && serie.path"
+            mat-menu-item class="text-application" (click)="followLink(serie.path)">
+            <mat-icon style="color: #3f51b5">remove_red_eye</mat-icon>
+            Watch
+        </button>
+
+        <button
+            *ngIf="(statusId || !serie.season || (serie.season && serie.season > 1)) && serie.statusId == 5 && serie.path"
+            mat-menu-item class="text-application" (click)="followLink(serie.path)">
+            <mat-icon style="color: #0e8999">search</mat-icon>
+            Search
+        </button>
+
+        <button *ngIf="statusId || !serie.season || (serie.season && serie.season > 1)" mat-menu-item
+            class="text-application" (click)="deleteSerie(serie.key)">
+            <mat-icon style="color: #f44336;">delete</mat-icon>
+            Delete
+        </button>
+
+    </ng-template>
+
+</mat-menu>
+
+<br>
+
+<div *ngIf="seriesList.length !== 0" class="pagination">
+    <pagination-controls (pageChange)="p = $event;OnPageChange()"></pagination-controls>
+</div>
+
+<div *ngIf="seriesList.length == 0" class="row justify-content-center no-results text-application">
+    No results
+</div>

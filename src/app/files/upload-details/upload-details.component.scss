@@ -1,0 +1,154 @@
+::ng-deep .my-class .modal-dialog { 
+  max-width: 60%;
+  width: 60%;
+}
+
+::ng-deep .my-class-mobile .modal-dialog { 
+  max-width: 95%;
+  width: 95%;
+}
+
+.pictureFile {
+  border: 1px solid #4d4c4c;
+  height: 100%;
+  width: 100%;
+  color: coral;
+  font-weight: bold;
+  background-size: cover;
+}
+
+.pictureFileMobile {
+  border: 1px solid #4d4c4c;
+  height: 365px;
+  width: 100%;
+  color: coral;
+  font-weight: bold;
+  background-size: cover;
+}
+
+.otherFileMobile {
+  border: 1px solid #4d4c4c;
+  height: 365px;
+  width: 365px;
+  color: coral;
+  font-weight: bold;
+  background-size: cover;
+}
+
+.otherFile {
+  width:100%;
+  height:80vh;
+}
+
+::ng-deep .class-lg .modal-dialog {
+  max-width: 90% !important;
+  width: 90% !important;
+}
+
+::ng-deep .class-md .modal-dialog {
+  max-width: 60% !important;
+  width: 60% !important;
+}
+
+.ExcelTable2007 {
+	border: 1px solid #B0CBEF;
+	border-width: 1px 0px 0px 1px;
+	font-size: 11pt;
+	font-family: Calibri;
+	font-weight: 100;
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+.ExcelTable2007 TH {
+	background-repeat: repeat-x; 
+	font-weight: bold;
+	font-size: 14px;
+	border: 1px solid #9EB6CE;
+	border-width: 0px 1px 1px 0px;
+	height: 17px;
+}
+
+.ExcelTable2007 TD {
+	border: 0px;
+	background-color: white;
+	padding: 0px 4px 0px 2px;
+	border: 1px solid #D0D7E5;
+	border-width: 0px 1px 1px 0px;
+  font-weight: bold;
+}
+
+.ExcelTable2007 TD B {
+	border: 0px;
+	background-color: white;
+	font-weight: bold;
+}
+
+.ExcelTable2007 TD.heading {
+	background-color: #E4ECF7;
+	text-align: center;
+	border: 1px solid #9EB6CE;
+	border-width: 0px 1px 1px 0px;
+}
+
+.ExcelTable2007 TH.heading {
+	background-repeat: none;
+}
+
+.no-results {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  font-size: 20px;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-divider {
+  border-top-color: black;
+}
+
+.example-list {
+  max-width: 100%;
+  border: solid 1px #ccc;
+  min-height: 60px;
+  display: block;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+  
+.example-box {
+  padding: 10px 10px;
+  border-bottom: solid 1px #ccc;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  box-sizing: border-box;
+  background: white;
+  font-size: 14px;
+}
+
+.example-box:last-child {
+  border: none;
+}
+
+.add-three-dots{
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+}
