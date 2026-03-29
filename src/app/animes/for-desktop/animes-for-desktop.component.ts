@@ -7,8 +7,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 
-import { AnimeDetailsWithSeasonsDesktopComponent } from './anime-details-with-seasons-desktop/anime-details-with-seasons-desktop.component';
-import { AnimeFormDesktopComponent } from './anime-form-desktop/anime-form-desktop.component';
+import { AnimeSeasonsForDesktopComponent } from './anime-seasons-for-desktop/anime-seasons-for-desktop.component';
+import { AnimeFormForDesktopComponent } from './anime-form-for-desktop/anime-form-for-desktop.component';
 
 import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
@@ -29,9 +29,8 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
   animesListCopie: Anime[] = [];
   allAnimes: Anime[] = [];
   listSeasonsByParentAnimeKey: Anime[] = [];
-
+  duplicatedAnimesList: Anime[] = [];
   p = 1;
-
   animeNameJap = '';
   animeNameEng = '';
   statusId: number;
@@ -40,16 +39,20 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
   dislike = false;
   nbrAnimesToCheckToday = 0;
   nbrAnimesNotChecked = 0;
+  nbrDuplicatedAnimes = 0;
   showAnimesNotChecked = false;
+  showDuplicatedAnimes = false;
   itemsPerPage: number;
+  loading = true;
 
   menuTopLeftPosition = { x: '0', y: '0' }
 
-  @ViewChild(MatMenuTrigger, { static: true }) matMenuTrigger: MatMenuTrigger;
+  @ViewChild('menuTrigger') matMenuTrigger!: MatMenuTrigger;
 
-  subscriptionForGetAllAnimes: Subscription;
-  subscriptionForGetAllAnimesForSelect: Subscription;
-  subscriptionForGetAllAnimesNotChecked: Subscription;
+  subsForGetAllAnimes: Subscription;
+  subsForGetAllAnimesForSelect: Subscription;
+  subsForGetAllAnimesNotChecked: Subscription;
+  subsForGetAllDuplicatedAnimes: Subscription;
 
   statusAnimes: StatusAnimes[] = [
     { id: 1, status: 'On hold' },
@@ -71,13 +74,15 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.itemsPerPage = window.innerWidth <= 1366 ? 15 : 16;
+    this.loading = true;
     this.getAllAnimes();
     this.getAllAnimesForSelect();
     this.getAllAnimesNotChecked();
+    this.getAllDuplicatedAnimes();
   }
 
   getAllAnimes() {
-    this.subscriptionForGetAllAnimes = this.animeService
+    this.subsForGetAllAnimes = this.animeService
       .getAll()
       .subscribe(animes => {
         this.animesListCopie = animes.sort((n1, n2) => n2.numRefAnime - n1.numRefAnime);
@@ -139,12 +144,12 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
         this.animesList.forEach(anime => {
           this.checkIfAnimeHaveSeasons(anime);
         })
-
+        this.loading = false;
       });
   }
 
   getAllAnimesForSelect() {
-    this.subscriptionForGetAllAnimesForSelect = this.animeService
+    this.subsForGetAllAnimesForSelect = this.animeService
       .getAll()
       .subscribe((animes: Anime[]) => {
         this.nbrAnimesToCheckToday = animes.filter(anime => anime.statusId == 1 && anime.checkDate && anime.checkDate == moment().format('YYYY-MM-DD') &&
@@ -154,12 +159,73 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
   }
 
   getAllAnimesNotChecked() {
-    this.subscriptionForGetAllAnimesNotChecked = this.animeService
+    this.subsForGetAllAnimesNotChecked = this.animeService
       .getAll()
       .subscribe((animes: Anime[]) => {
         this.nbrAnimesNotChecked = animes.filter(anime => anime.statusId == 1 && anime.checkDate && anime.checkDate < moment().format('YYYY-MM-DD')).length;
         this.cdRef.detectChanges();
       })
+  }
+
+  getAllDuplicatedAnimes() {
+    this.animesList = [];
+    this.duplicatedAnimesList = [];
+    this.nbrDuplicatedAnimes = 0;
+
+    this.subsForGetAllDuplicatedAnimes = this.animeService.getAll().subscribe((animes: Anime[]) => {
+      const defaultAnimes = animes.filter(a => a.isFirst);
+      const duplicatedResult = this.getDuplicatedAnimes(defaultAnimes);
+
+      this.duplicatedAnimesList = duplicatedResult.list;
+      this.nbrDuplicatedAnimes = duplicatedResult.count;
+
+      this.updateAnimesList();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getDuplicatedAnimes(animes: Anime[]): { list: Anime[]; count: number } {
+    const animeMap = new Map<string, Anime[]>();
+    const result: Anime[] = [];
+    let duplicationCount = 0;
+
+    animes.forEach(anime => {
+      const key = anime.nameAnime && anime.nameAnime !== '-'? anime.nameAnime.trim() : anime.nameAnimeEng?.trim();
+      if (!key) {
+        return;
+      }
+      const list = animeMap.get(key) || [];
+      list.push(anime);
+      animeMap.set(key, list);
+    });
+
+    animeMap.forEach(list => {
+      if (list.length > 1) {
+        duplicationCount++;        // ✅ one duplicated group
+        result.push(...list);      // keep copies together
+      }
+    });
+
+    return { list: result, count: duplicationCount };
+  }
+
+  onDuplicatedToggle() {
+    this.updateAnimesList();
+  }
+
+  updateAnimesList() {
+    if (this.showDuplicatedAnimes) {
+      this.animesList = this.duplicatedAnimesList;
+      this.animesList = this.animesList.sort((a, b) => {
+        const nameCompare = a.nameAnime.localeCompare(b.nameAnime);
+
+        if (nameCompare !== 0) return nameCompare; // group by name first
+
+        return b.numRefAnime - a.numRefAnime; // then sort inside group
+      });
+    } else {
+      this.getAllAnimes();
+    }
   }
 
   checkIfAnimeHaveSeasons(animeData: Anime) {
@@ -179,20 +245,20 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
       .filter(anime => (anime.key == animeSelected.key) || (anime.parentAnimeKey == animeSelected.key))
       .sort((n1, n2) => n1.priority - n2.priority);
 
-    const dialogRef = this.dialogService.open(AnimeDetailsWithSeasonsDesktopComponent, { width: '1150px' });
+    const dialogRef = this.dialogService.open(AnimeSeasonsForDesktopComponent, { width: '1150px' });
     dialogRef.componentInstance.anime = animeSelected;
     dialogRef.componentInstance.allAnimes = this.allAnimes;
     dialogRef.componentInstance.listSeasonsByParentAnimeKey = this.listSeasonsByParentAnimeKey;
   }
 
   newAnime() {
-    const dialogRef = this.dialogService.open(AnimeFormDesktopComponent, { width: '500px', data: { movie: {} } });
+    const dialogRef = this.dialogService.open(AnimeFormForDesktopComponent, { width: '500px', data: { movie: {} } });
     dialogRef.componentInstance.arrayAnimes = this.animesListCopie;
     dialogRef.componentInstance.allAnimes = this.allAnimes;
   }
 
   editAnime(anime?: Anime) {
-    const dialogRef = this.dialogService.open(AnimeFormDesktopComponent, { width: '500px' });
+    const dialogRef = this.dialogService.open(AnimeFormForDesktopComponent, { width: '500px' });
     dialogRef.componentInstance.anime = anime;
     dialogRef.componentInstance.allAnimes = this.allAnimes;
   }
@@ -276,9 +342,10 @@ export class AnimesForDesktopComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllAnimes.unsubscribe();
-    this.subscriptionForGetAllAnimesForSelect.unsubscribe();
-    this.subscriptionForGetAllAnimesNotChecked.unsubscribe();
+    this.subsForGetAllAnimes.unsubscribe();
+    this.subsForGetAllAnimesForSelect.unsubscribe();
+    this.subsForGetAllAnimesNotChecked.unsubscribe();
+    this.subsForGetAllDuplicatedAnimes.unsubscribe();
   }
 
 }

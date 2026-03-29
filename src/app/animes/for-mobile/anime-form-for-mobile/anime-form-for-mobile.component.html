@@ -1,0 +1,129 @@
+<div mat-dialog-title class="dialog-title">
+  <h3 *ngIf="!anime.key" mat-dialog-title class="text-application">New anime</h3>
+  <h3 *ngIf="anime.key" mat-dialog-title class="text-application">Edit anime</h3>
+</div>
+
+<mat-dialog-content>
+  <form (ngSubmit)="save()" #f="ngForm">
+
+    <mat-checkbox name="isFirst" [(ngModel)]="anime.isFirst" class="mat-checkbox-layout">
+      <span>First</span>
+    </mat-checkbox>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Name Jap</span></mat-placeholder>
+      <input matInput type="text" [(ngModel)]="anime.nameAnime" name="nameAnime" class="text-application" required>
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Name Eng</span></mat-placeholder>
+      <input matInput type="text" [(ngModel)]="anime.nameAnimeEng" name="nameAnimeEng" class="text-application"
+        required>
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Type</span></mat-placeholder>
+      <mat-select [(ngModel)]="anime.type" name="type" class="text-application">
+        <mat-option value="TV" class="text-application">TV</mat-option>
+        <mat-option value="Movie" class="text-application">Movie</mat-option>
+        <mat-option value="Special" class="text-application">Special</mat-option>
+        <mat-option value="Manga" class="text-application">Manga</mat-option>
+        <mat-option value="Ova" class="text-application">Ova</mat-option>
+        <mat-option value="Ona" class="text-application">Ona</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Status</span></mat-placeholder>
+      <mat-select [(ngModel)]="anime.statusId" name="statusId" class="text-application" required>
+        <mat-option value=""></mat-option>
+        <mat-option *ngFor="let statusAnime of statusAnimes" [value]="statusAnime.id">
+          <span class="text-application">{{statusAnime.status}}</span>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="anime.statusId && anime.statusId == 1" color="accent">
+      <mat-placeholder class="text-application"><span>Check</span></mat-placeholder>
+      <input matInput #input type="date" [(ngModel)]="anime.checkDate" name="checkDate" class="text-application">
+    </mat-form-field>
+
+    <mat-checkbox *ngIf="anime.statusId && anime.statusId == 3" name="notLiked" [(ngModel)]="anime.notLiked"
+      class="mat-checkbox-layout">
+      <span>Dislike</span>
+    </mat-checkbox>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Season</span></mat-placeholder>
+      <input matInput #input type="number" [(ngModel)]="anime.season" name="season" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Priority</span></mat-placeholder>
+      <input matInput #input type="number" [(ngModel)]="anime.priority" name="priority" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Current episode</span></mat-placeholder>
+      <input matInput #input type="number" [(ngModel)]="anime.currentEpisode" name="currentEpisode"
+        class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Total episodes</span></mat-placeholder>
+      <input matInput #input type="number" [(ngModel)]="anime.totalEpisodes" name="totalEpisodes"
+        class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent" *ngIf="anime.priority && anime.priority > 1">
+      <input type="text" placeholder="Parent film jap" matInput [matAutocomplete]="auto"
+        (keyup)="filterByParentNameJap($event)" name="parentAnimeNameJap" [(ngModel)]="parentAnimeNameJap">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let anime of seasonAnimesListJap" [value]="anime.key"
+          (click)="getParentAnimeKeyJap(anime.key)">
+          {{anime.nameAnime}}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field color="accent" *ngIf="anime.priority && anime.priority > 1">
+      <input type="text" placeholder="Parent anime eng" matInput [matAutocomplete]="auto"
+        (keyup)="filterByParentNameEng($event)" name="parentAnimeNameEng" [(ngModel)]="parentAnimeNameEng">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let anime of seasonAnimesListEng" [value]="anime.key"
+          (click)="getParentAnimeKeyEng(anime.key)">
+          <span>{{anime.nameAnimeEng}}</span>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Path</span></mat-placeholder>
+      <input matInput #input type="text" [(ngModel)]="anime.path" name="path" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Note</span></mat-placeholder>
+      <textarea matInput #input type="text" [(ngModel)]="anime.note" name="note" rows="4" cols="40"
+        class="text-application"></textarea>
+    </mat-form-field>
+
+    <button type="button" mat-button (click)="fileInput.click()">Choose picture</button>
+    <input hidden (change)="onFileChanged($event)" #fileInput type="file" id="file" accept=".jpeg,.jpg,.png,.svg">
+    <br *ngIf="progressValue"><br *ngIf="progressValue">
+    <div *ngIf="progressValue | async as val" class="progress-background">
+      <div class="progress-meter" [ngStyle]="{'width.%': val}"></div>
+      <span style="margin-left: 45%;">{{ val | number: '1.0-0' }}%</span>
+    </div>
+
+    <br *ngIf="progressValue">
+
+    <mat-dialog-actions>
+      <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1"
+        style="background:#FF5722;color: white;" class="text-application">Save</button>
+      <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;"
+        class="text-application">Cancel</button>
+    </mat-dialog-actions>
+
+  </form>
+</mat-dialog-content>

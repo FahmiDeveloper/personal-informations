@@ -41,21 +41,30 @@
 
 <br>
 
-<mat-grid-list cols=2 rowHeight="30px" class="text-application">
+<mat-grid-list cols=1 rowHeight="30px" class="text-application">
 
-    <mat-grid-tile>Total clockings late in {{ currentMonth }}&nbsp;{{ currentYear }}</mat-grid-tile>
-
-    <mat-grid-tile> Vacation limit days in {{ currentMonth }}&nbsp;{{ currentYear }}</mat-grid-tile>
-
-    <mat-grid-tile>
-        <span *ngIf="sumClockingLate < 60 || !sumClockingLate">{{ totalClockingLate }}&nbsp;Min</span>
-        <span *ngIf="sumClockingLate == 60 || sumClockingLate > 60">{{ totalClockingLateByHoursMinute }}</span>
+    <mat-grid-tile>Total clockings late in {{ currentMonth }}&nbsp;{{ currentYear }}:&nbsp;&nbsp;&nbsp;
+        <span *ngIf="sumClockingLate < 60 || !sumClockingLate" style="color: green;">{{ totalClockingLate }}&nbsp;Min</span>
+        <span *ngIf="sumClockingLate == 60 || sumClockingLate > 60">
+            <span *ngIf="hours < 6 || (hours == 6 && minutes == 0)" style="color: green;">{{ totalClockingLateByHoursMinute }}</span>
+            <span *ngIf="(hours == 6 && minutes > 0) || (hours == 6 && minutes !== 0 && minutes <= 59)" style="color: #FF6D4A;">{{ totalClockingLateByHoursMinute }}</span>
+            <span *ngIf="hours == 7 || hours > 7" style="color: red;">{{ totalClockingLateByHoursMinute }}</span>
+        </span>
     </mat-grid-tile>
 
-    <mat-grid-tile>
+    <mat-grid-tile>Vacation limit days in {{ currentMonth }}&nbsp;{{ currentYear }}:&nbsp;&nbsp;&nbsp;
         <span *ngIf="vacationLimitDays > 0" style="color: green;">{{ vacationLimitDays }}</span>
         <span *ngIf="vacationLimitDays == 0 || vacationLimitDays < 0" style="color: red;">{{ vacationLimitDays }}</span>
         &nbsp;day(s)
+    </mat-grid-tile>
+
+    <mat-grid-tile>Rest of salary in {{ currentMonth }}&nbsp;{{ currentYear }}:&nbsp;&nbsp;&nbsp;{{ formatToDTMill(restOfSalaryForCurrentMonth) }}</mat-grid-tile>
+
+    <mat-grid-tile>Total added hours worked in {{ currentMonth }}&nbsp;{{ currentYear }}:&nbsp;&nbsp;&nbsp;{{ totalAddedHoursWorked }}H</mat-grid-tile>
+
+    <mat-grid-tile>Cost work added hours in {{ currentMonth }}&nbsp;{{ currentYear }}:&nbsp;&nbsp;&nbsp;
+        <span *ngIf="totalCostWorkAddedHours > 0" style="color: green;">{{ formatToDTMill(totalCostWorkAddedHours) }}</span>
+        <span *ngIf="totalCostWorkAddedHours == 0" style="color: red;">{{ totalCostWorkAddedHours }}&nbsp;Mill</span>
     </mat-grid-tile>
 
 </mat-grid-list>
@@ -84,7 +93,7 @@
 
 <div class="row">
 
-    <div *ngFor="let clocking of (clockingsList | paginate: { itemsPerPage: 6 , currentPage: p })" class="mx-auto my-3 col-md-4">
+    <div *ngFor="let clocking of (clockingsList | paginate: { itemsPerPage: 4 , currentPage: p })" class="mx-auto my-3 col-md-6">
 
         <mat-card class="text-application example-card-tablet">
 
@@ -120,13 +129,14 @@
                     <mat-grid-tile colspan="4">Subj</mat-grid-tile>                
                     <mat-grid-tile colspan="8">
                         <span *ngIf="clocking.subjectId">
-                            <span *ngIf="clocking.subjectId == 1">Work on sunday</span>
-                            <span *ngIf="clocking.subjectId == 2">Take vacation</span>
-                            <span *ngIf="clocking.subjectId == 3">Take one hour</span>
-                            <span *ngIf="clocking.subjectId == 4">Take two hours</span>
-                            <span *ngIf="clocking.subjectId == 5">Take three hours</span>
-                            <span *ngIf="clocking.subjectId == 6">Work half day</span>
-                            <span *ngIf="clocking.subjectId == 7">Public holiday</span>
+                            <span *ngIf="clocking.subjectId == 1">Work on Saturday<br>({{formatToDTMill(clocking.costWorkAddedHoursByday)}})</span>
+                            <span *ngIf="clocking.subjectId == 2">Work on Sunday<br>({{formatToDTMill(clocking.costWorkAddedHoursByday)}})</span>
+                            <span *ngIf="clocking.subjectId == 3">Take vacation</span>
+                            <span *ngIf="clocking.subjectId == 4">Take one hour</span>
+                            <span *ngIf="clocking.subjectId == 5">Take two hours</span>
+                            <span *ngIf="clocking.subjectId == 6">Take three hours</span>
+                            <span *ngIf="clocking.subjectId == 7">Work half day</span>
+                            <span *ngIf="clocking.subjectId == 8">Public holiday</span>
                         </span>
                         <span *ngIf="!clocking.subjectId">-</span>
                     </mat-grid-tile>
@@ -137,6 +147,11 @@
                     <mat-grid-tile colspan="8">
                         <span [ngStyle]="{'color': clocking.restVacationDays > 0 ? 'green' : 'red'}">{{ clocking.restVacationDays }}</span>
                     </mat-grid-tile>
+
+                    <br>
+
+                    <mat-grid-tile colspan="4">Rest Slry</mat-grid-tile>                
+                    <mat-grid-tile colspan="8">{{ formatToDTMill(clocking.restOfSalary) }}</mat-grid-tile>
                     
                     <br>
                     

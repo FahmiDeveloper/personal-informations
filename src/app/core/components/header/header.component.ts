@@ -5,6 +5,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import firebase from 'firebase';
+import Swal from 'sweetalert2';
 
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { UsersListService } from 'src/app/shared/services/list-users.service';
@@ -167,6 +168,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return '';
     }
     return value.length > limit ? value.substring(0, limit) + '...' : value;
+  }
+
+  markAllAsDoed() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Mark all notifications as doed!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.value) {
+        this.allNotifNotDone.forEach(notif => {
+          notif.notifSubjectDone = true;
+          this.notificationService.update(notif.key, notif);
+        });
+        Swal.fire(
+          'Notifications marked as doed successfully',
+          '',
+          'success'
+        )
+      }
+    })
   }
 
   ngOnDestroy() {

@@ -9,6 +9,10 @@ export class Clocking {
   restVacationDays: number;
   subjectId: number;
   dateEndVaction: string;
+  costOneHour: number;
+  nbrHoursWorked: number;
+  costWorkAddedHoursByday: number;
+  restOfSalary: number;
 }
 
 export interface MonthsList {

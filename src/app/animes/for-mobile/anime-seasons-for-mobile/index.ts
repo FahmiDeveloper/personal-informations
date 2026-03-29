@@ -1,0 +1,1 @@
+export * from './anime-seasons-for-mobile.component';

@@ -12,7 +12,6 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
-import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
@@ -40,14 +39,14 @@ import {
 
 import { 
   AnimesForDesktopComponent,
-  AnimeFormDesktopComponent,
-  AnimeDetailsWithSeasonsDesktopComponent,
+  AnimeFormForDesktopComponent,
+  AnimeSeasonsForDesktopComponent,
   AnimesForTabletComponent,
-  AnimeFormTabletComponent,
-  AnimeDetailsWithSeasonsTabletComponent,
+  AnimeFormForTabletComponent,
+  AnimeSeasonsForTabletComponent,
   AnimesForMobileComponent,
-  AnimeFormMobileComponent,
-  AnimeDetailsWithSeasonsMobileComponent
+  AnimeFormForMobileComponent,
+  AnimeSeasonsForMobileComponent
 } from './animes/index';
 
 import { 
@@ -118,14 +117,14 @@ import {
 
 import { 
   MoviesForDesktopComponent,
-  MovieFormDesktopComponent,
-  MovieDetailsWithPartsDesktopComponent,
+  MovieFormForDesktopComponent,
+  MoviePartsForDesktopComponent,
   MoviesForTabletComponent,
-  MovieFormTabletComponent,
-  MovieDetailsWithPartsTabletComponent,
+  MovieFormForTabletComponent,
+  MoviePartsForTabletComponent,
   MoviesForMobileComponent,
-  MovieFormMobileComponent,
-  MovieDetailsWithPartsMobileComponent
+  MovieFormForMobileComponent,
+  MoviePartsForMobileComponent
 } from './movies/index';
 
 import { 
@@ -148,14 +147,14 @@ import {
 
 import { 
   SeriesForDesktopComponent,
-  SerieFormDesktopComponent,
-  SerieDetailsWithSeasonsDesktopComponent,
+  SerieFormForDesktopComponent,
+  SerieSeasonsForDesktopComponent,
   SeriesForTabletComponent,
-  SerieFormTabletComponent,
-  SerieDetailsWithSeasonsTabletComponent,
+  SerieFormForTabletComponent,
+  SerieSeasonsForTabletComponent,
   SeriesForMobileComponent,
-  SerieFormMobileComponent,
-  SerieDetailsWithSeasonsMobileComponent
+  SerieFormForMobileComponent,
+  SerieSeasonsForMobileComponent
 } from './series/index';
 
 import { 
@@ -216,14 +215,14 @@ import { AppMobileComponent } from './app-mobile/app-mobile.component';
     SortPipe,
 
     AnimesForDesktopComponent,
-    AnimeFormDesktopComponent,
-    AnimeDetailsWithSeasonsDesktopComponent,
+    AnimeFormForDesktopComponent,
+    AnimeSeasonsForDesktopComponent,
     AnimesForTabletComponent,
-    AnimeFormTabletComponent,
-    AnimeDetailsWithSeasonsTabletComponent,
+    AnimeFormForTabletComponent,
+    AnimeSeasonsForTabletComponent,
     AnimesForMobileComponent,
-    AnimeFormMobileComponent,
-    AnimeDetailsWithSeasonsMobileComponent,
+    AnimeFormForMobileComponent,
+    AnimeSeasonsForMobileComponent,
 
     ClockingsForDesktopComponent,
     ClockingFormForDesktopComponent,
@@ -278,14 +277,14 @@ import { AppMobileComponent } from './app-mobile/app-mobile.component';
     MedicationFormForMobileComponent,
 
     MoviesForDesktopComponent,
-    MovieFormDesktopComponent,
-    MovieDetailsWithPartsDesktopComponent,
+    MovieFormForDesktopComponent,
+    MoviePartsForDesktopComponent,
     MoviesForTabletComponent,
-    MovieFormTabletComponent,
-    MovieDetailsWithPartsTabletComponent,
+    MovieFormForTabletComponent,
+    MoviePartsForTabletComponent,
     MoviesForMobileComponent,
-    MovieFormMobileComponent,
-    MovieDetailsWithPartsMobileComponent,
+    MovieFormForMobileComponent,
+    MoviePartsForMobileComponent,
 
     NotesForDesktopComponent,
     NoteFormDesktopComponent,
@@ -302,14 +301,14 @@ import { AppMobileComponent } from './app-mobile/app-mobile.component';
     PasswordFormForMobileComponent,
 
     SeriesForDesktopComponent,
-    SerieFormDesktopComponent,
-    SerieDetailsWithSeasonsDesktopComponent,
+    SerieFormForDesktopComponent,
+    SerieSeasonsForDesktopComponent,
     SeriesForTabletComponent,
-    SerieFormTabletComponent,
-    SerieDetailsWithSeasonsTabletComponent,
+    SerieFormForTabletComponent,
+    SerieSeasonsForTabletComponent,
     SeriesForMobileComponent,
-    SerieFormMobileComponent,
-    SerieDetailsWithSeasonsMobileComponent,
+    SerieFormForMobileComponent,
+    SerieSeasonsForMobileComponent,
 
     ToDoListComponent,
     TaskFormComponent,

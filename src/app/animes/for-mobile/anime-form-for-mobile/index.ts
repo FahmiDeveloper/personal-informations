@@ -1,0 +1,1 @@
+export * from './anime-form-for-mobile.component';

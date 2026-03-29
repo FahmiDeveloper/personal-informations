@@ -297,7 +297,18 @@
   
 .notification-header .notification-view-all {
     font-size: 14px;
-    color: #999;
+}
+
+.notification-header .notification-mark-all {
+    font-size: 14px;
+    text-decoration: none;  
+    color: #007bff;
+}
+
+.notification-header .notification-mark-all:hover {
+    font-size: 14px;
+    text-decoration: underline;  
+    color: #007bff;
 }
   
 .notification-list {

@@ -1,12 +1,13 @@
 import { Injectable, OnDestroy } from '@angular/core';
 
+import { Subscription } from 'rxjs';
+
 import { ShowNotificationDesktopService } from './show-notification-desktop.service'; // Assuming you have a NotificationService
 import { ShowNotificationAndroidService } from 'src/app/show-notification-android.service';
 import { NotificationService } from './shared/services/notification.service';
 
 import { Reminder } from './shared/models/reminder.model';
 import { Notification } from 'src/app/shared/models/notification.model';
-import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,14 +20,14 @@ export class TimeCheckingService implements OnDestroy {
   notificationForSave: Notification = {};
   allNotifications: Notification[]= [];
 
-  subscriptionForGetAllNotifications: Subscription;
+  subForGetAllNotfs: Subscription;
 
   constructor(
     public showNotificationDesktopService: ShowNotificationDesktopService,
     public showNotificationAndroidService: ShowNotificationAndroidService,
     public notificationService: NotificationService,
   ) {
-    this.subscriptionForGetAllNotifications = this.notificationService
+    this.subForGetAllNotfs = this.notificationService
     .getAll()
     .subscribe((notifications: Notification[]) => {
       this.allNotifications = notifications;
@@ -100,6 +101,6 @@ export class TimeCheckingService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllNotifications.unsubscribe();
+    this.subForGetAllNotfs.unsubscribe();
   }
 }

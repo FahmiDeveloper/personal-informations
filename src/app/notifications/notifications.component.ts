@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 import { NotificationService } from 'src/app/shared/services/notification.service';
 
@@ -84,6 +85,28 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     } else {
       return notifDate.toLocaleDateString(); // Show full date after a week
     }
+  }
+  
+  deleteAllNotifications() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Delete all notifications!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.value) {
+        this.notificationsList.forEach(notif => {
+          this.notificationService.delete(notif.key);
+        });
+        Swal.fire(
+          'All notifications have been deleted successfully',
+          '',
+          'success'
+        )
+      }
+    })
   }
 
   ngOnDestroy() {

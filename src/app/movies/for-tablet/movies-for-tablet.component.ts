@@ -7,8 +7,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 
-import { MovieDetailsWithPartsTabletComponent } from './movie-details-with-parts-tablet/movie-details-with-parts-tablet.component';
-import { MovieFormTabletComponent } from './movie-form-tablet/movie-form-tablet.component';
+import { MoviePartsForTabletComponent } from './movie-parts-for-tablet/movie-parts-for-tablet.component';
+import { MovieFormForTabletComponent } from './movie-form-for-tablet/movie-form-for-tablet.component';
 
 import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
@@ -28,27 +28,30 @@ export class MoviesForTabletComponent implements OnInit, OnDestroy {
   moviesList: Movie[] = [];
   moviesListCopie: Movie[] = [];
   allMovies: Movie[] = [];
-  listPartsByParentFilmKey: Movie[] = [];
-
+  listPartsByParentMovieKey: Movie[] = [];
+  duplicatedMoviesList: Movie[] = [];
   p = 1;
-
   movieName = '';
   statusId: number;
   optionSelected: number;
   dislike = false;
   nbrMoviesToCheckToday = 0;
   nbrMoviesNotChecked = 0;
+  nbrDuplicatedMovies = 0;
   showMoviesNotChecked = false;
+  showDuplicatedMovies = false;
   orientation = '';
   itemsPerPage: number;
+  loading = true;
 
   menuTopLeftPosition = { x: '0', y: '0' }
 
-  @ViewChild(MatMenuTrigger, { static: true }) matMenuTrigger: MatMenuTrigger;
+  @ViewChild('menuTrigger') matMenuTrigger!: MatMenuTrigger;
 
-  subscriptionForGetAllMovies: Subscription;
-  subscriptionForGetAllMoviesForSelect: Subscription;
-  subscriptionForGetAllMoviesNotChecked: Subscription;
+  subForGetAllMovies: Subscription;
+  subForGetAllMoviesForSelect: Subscription;
+  subForGetAllMoviesNotChecked: Subscription;
+  subForGetAllDupMovies: Subscription;
 
   statusMovies: StatusMovies[] = [
     { id: 1, status: 'On hold' },
@@ -88,13 +91,15 @@ export class MoviesForTabletComponent implements OnInit, OnDestroy {
 
       this.itemsPerPage = this.orientation == 'Portrait' ? 9 : 10;
     });
+    this.loading = true;
     this.getAllMovies();
     this.getAllMoviesForSelect();
     this.getAllMoviesNotChecked();
+    this.getAllDuplicatedMovies();
   }
 
   getAllMovies() {
-    this.subscriptionForGetAllMovies = this.movieService
+    this.subForGetAllMovies = this.movieService
       .getAll()
       .subscribe((movies: Movie[]) => {
         this.moviesListCopie = movies.sort((n1, n2) => n2.numRefMovie - n1.numRefMovie);
@@ -147,11 +152,12 @@ export class MoviesForTabletComponent implements OnInit, OnDestroy {
 
         else this.moviesList = movies.filter(movie => movie.isFirst == true).sort((n1, n2) => n2.numRefMovie - n1.numRefMovie);
 
+        this.loading = false;
       });
   }
 
   getAllMoviesForSelect() {
-    this.subscriptionForGetAllMoviesForSelect = this.movieService
+    this.subForGetAllMoviesForSelect = this.movieService
       .getAll()
       .subscribe((movies: Movie[]) => {
         this.nbrMoviesToCheckToday = movies.filter(movie => movie.statusId == 1 && movie.checkDate && movie.checkDate == moment().format('YYYY-MM-DD')).length;
@@ -160,7 +166,7 @@ export class MoviesForTabletComponent implements OnInit, OnDestroy {
   }
 
   getAllMoviesNotChecked() {
-    this.subscriptionForGetAllMoviesNotChecked = this.movieService
+    this.subForGetAllMoviesNotChecked = this.movieService
       .getAll()
       .subscribe((movies: Movie[]) => {
         this.nbrMoviesNotChecked = movies.filter(movie => movie.statusId == 1 && movie.checkDate && movie.checkDate < moment().format('YYYY-MM-DD')).length;
@@ -168,29 +174,92 @@ export class MoviesForTabletComponent implements OnInit, OnDestroy {
       })
   }
 
+  getAllDuplicatedMovies() {
+    this.moviesList = [];
+    this.duplicatedMoviesList = [];
+    this.nbrDuplicatedMovies = 0;
+
+    this.subForGetAllDupMovies = this.movieService.getAll().subscribe((movies: Movie[]) => {
+      const defaultMovies = movies.filter(m => m.isFirst);
+      const duplicatedResult = this.getDuplicatedMovies(defaultMovies);
+
+      this.duplicatedMoviesList = duplicatedResult.list;
+      this.nbrDuplicatedMovies = duplicatedResult.count;
+
+      this.updateMoviesList();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getDuplicatedMovies(movies: Movie[]): { list: Movie[]; count: number } {
+    const movieMap = new Map<string, Movie[]>();
+    const result: Movie[] = [];
+    let duplicationCount = 0;
+
+    movies.forEach(movie => {
+      const key = movie.nameMovie?.trim();
+
+      if (!key) {
+        return;
+      }
+
+      const list = movieMap.get(key) || [];
+      list.push(movie);
+      movieMap.set(key, list);
+    });
+
+    movieMap.forEach(list => {
+      if (list.length > 1) {
+        duplicationCount++;      // ✅ one duplicated movie group
+        result.push(...list);    // duplicates stay together
+      }
+    });
+
+    return { list: result, count: duplicationCount };
+  }
+  
+  onDuplicatedToggle() {
+    this.updateMoviesList();
+  }
+
+  updateMoviesList() {
+    if (this.showDuplicatedMovies) {
+      this.moviesList = this.duplicatedMoviesList;
+      this.moviesList = this.moviesList.sort((a, b) => {
+        const nameCompare = a.nameMovie.localeCompare(b.nameMovie);
+
+        if (nameCompare !== 0) return nameCompare; // group by name first
+
+        return b.numRefMovie - a.numRefMovie; // then sort inside group
+      });
+    } else {
+      this.getAllMovies();
+    }
+  }
+
   OnPageChange() {
     document.body.scrollTop = document.documentElement.scrollTop = 0;
   }
 
   showDetailsMovie(movieSelected: Movie) {
-    this.listPartsByParentFilmKey = this.allMovies
+    this.listPartsByParentMovieKey = this.allMovies
       .filter(movie => (movie.key == movieSelected.key) || (movie.parentFilmKey == movieSelected.key))
       .sort((n1, n2) => n1.priority - n2.priority);
 
-    const dialogRef = this.dialogService.open(MovieDetailsWithPartsTabletComponent, { width: '1150px' });
+    const dialogRef = this.dialogService.open(MoviePartsForTabletComponent, { width: '1150px' });
     dialogRef.componentInstance.movie = movieSelected;
     dialogRef.componentInstance.allMovies = this.allMovies;
-    dialogRef.componentInstance.listPartsByParentFilmKey = this.listPartsByParentFilmKey;
+    dialogRef.componentInstance.listPartsByParentMovieKey = this.listPartsByParentMovieKey;
   }
 
   newMovie() {
-    const dialogRef = this.dialogService.open(MovieFormTabletComponent, { width: '500px', data: { movie: {} } });
+    const dialogRef = this.dialogService.open(MovieFormForTabletComponent, { width: '500px', data: { movie: {} } });
     dialogRef.componentInstance.arrayMovies = this.moviesListCopie;
     dialogRef.componentInstance.allMovies = this.allMovies;
   }
 
   editMovie(movie?: Movie) {
-    const dialogRef = this.dialogService.open(MovieFormTabletComponent, { width: '500px' });
+    const dialogRef = this.dialogService.open(MovieFormForTabletComponent, { width: '500px' });
     dialogRef.componentInstance.movie = movie;
     dialogRef.componentInstance.allMovies = this.allMovies;
   }
@@ -259,9 +328,10 @@ export class MoviesForTabletComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllMovies.unsubscribe();
-    this.subscriptionForGetAllMoviesForSelect.unsubscribe();
-    this.subscriptionForGetAllMoviesNotChecked.unsubscribe();
+    this.subForGetAllMovies.unsubscribe();
+    this.subForGetAllMoviesForSelect.unsubscribe();
+    this.subForGetAllMoviesNotChecked.unsubscribe();
+    this.subForGetAllDupMovies.unsubscribe();
   }
 
 }

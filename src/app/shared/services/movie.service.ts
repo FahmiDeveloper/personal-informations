@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
 
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
+
+import { Movie } from '../models/movie.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,5 +34,31 @@ export class MovieService {
   delete(movieId) {
     return this.db.object('/movies/' + movieId).remove();
   }
-  
+
+  getTodayMoviesCount(date: string) {
+    return this.db.list<Movie>('/movies', ref =>
+      ref.orderByChild('checkDate').equalTo(date)
+    )
+    .valueChanges()
+    .pipe(
+      take(1),
+      map(movies =>
+        movies.filter(movie => movie.statusId === 1 && movie.checkDate && movie.checkDate === date).length
+      )
+    );
+  }
+
+  getNotCheckedMoviesCount(date: string) {
+    return this.db.list<Movie>('/movies', ref =>
+      ref.orderByChild('checkDate').endAt(date)
+    )
+    .valueChanges()
+    .pipe(
+      take(1),
+      map(movies =>
+        movies.filter(movie => movie.statusId === 1 && movie.checkDate && movie.checkDate < date).length // ⬅ exclude today
+      )
+    );
+  }
+
 }

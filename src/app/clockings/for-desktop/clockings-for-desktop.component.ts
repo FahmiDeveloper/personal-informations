@@ -23,9 +23,7 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
   allClockings: Clocking[]= [];
   clockingsListCopieForNewClocking: Clocking[] = []
   clockingsListCopieForCalculTotalClockingLate: Clocking[] = []
-
   p: number = 1;
-
   currentMonthAndYear: string;
   totalClockingLate = 0;
   minutePartList: number[] = [];
@@ -40,7 +38,11 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
   isLoading: boolean;
   showDeleteAllClockingsButtton: boolean;
   lastClockingFromList = 0;
-
+  totalCostWorkAddedHours = 0;
+  totalAddedHoursWorked = 0;
+  restOfSalaryForCurrentMonth = 0;
+  hours: number;
+  minutes: number;
   modalRefLodaing: any;
 
   menuTopLeftPosition =  {x: '0', y: '0'} 
@@ -65,14 +67,16 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
   ];
 
   subjectList: SubjectList[] = [
-    {id: 1, subjectName: 'Work on sunday'},
-    {id: 2, subjectName: 'Take vacation'},
-    {id: 3, subjectName: 'Take one hour'},
-    {id: 4, subjectName: 'Take two hours'},
-    {id: 5, subjectName: 'Take three hours'},
-    {id: 6, subjectName: 'Work half day'},
-    {id: 7, subjectName: 'Public holiday'},
-    {id: 8, subjectName: 'Vacations by month'}    
+    {id: 1, subjectName: 'Work on Saturday'},
+    {id: 2, subjectName: 'Work on Sunday'},
+    {id: 3, subjectName: 'Take vacation'},
+    {id: 4, subjectName: 'Take one hour'},
+    {id: 5, subjectName: 'Take two hours'},
+    {id: 6, subjectName: 'Take three hours'},
+    {id: 7, subjectName: 'Work half day'},
+    {id: 8, subjectName: 'Public holiday'},
+    {id: 9, subjectName: 'Vacations by month'},
+    {id: 10, subjectName: 'Work added hours'} 
   ];
   
   constructor(
@@ -90,10 +94,16 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
     this.getAllClockings();
   }
 
-  getAllClockings() {
+  getAllClockings() {    
+    this.currentMonth = this.monthsList.find(month => month.monthNbr == this.monthSelected).monthName;
+
     this.subscriptionForGetAllClockings = this.clockingService
     .getAll()
     .subscribe((clockings: Clocking[]) => {
+      
+      this.totalCostWorkAddedHours = 0;
+      this.totalAddedHoursWorked = 0;
+      this.restOfSalaryForCurrentMonth = 0;
 
       this.allClockings = clockings;
 
@@ -103,12 +113,15 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
       .filter(clocking => clocking.dateClocking.split('-')[1] == this.monthSelected)
       .sort((n1, n2) => n2.numRefClocking - n1.numRefClocking);
 
-      this.currentMonth = this.monthsList.find(month => month.monthNbr == this.monthSelected).monthName;
-
       if (this.subjectSelectedId) {
-        if (this.subjectSelectedId == 8) {
+        if (this.subjectSelectedId == 9) {
           this.clockingsList = clockings
-          .filter(clocking => (clocking.dateClocking.split('-')[1] == this.monthSelected) && (clocking.subjectId) && (clocking.subjectId !== 1))
+          .filter(clocking => (clocking.dateClocking.split('-')[1] == this.monthSelected) && (clocking.subjectId) && (clocking.subjectId !== 1) && (clocking.subjectId !== 2))
+          .sort((n1, n2) => n1.numRefClocking - n2.numRefClocking); 
+        } 
+        else if (this.subjectSelectedId == 10) {
+          this.clockingsList = clockings
+          .filter(clocking => (clocking.dateClocking.split('-')[1] == this.monthSelected) && (clocking.subjectId) && ((clocking.subjectId == 1) || (clocking.subjectId == 2)))
           .sort((n1, n2) => n1.numRefClocking - n2.numRefClocking); 
         }
         else {
@@ -134,11 +147,16 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
       .filter(clocking => clocking.dateClocking.split('-')[1] == this.monthSelected)
       .sort((n1, n2) => n2.numRefClocking - n1.numRefClocking)[0];
       if (lastClockingByCurrentMonth) this.vacationLimitDays = lastClockingByCurrentMonth.restVacationDays;
+
+      let lastRestOfSalaryForCurrentMonth = clockings
+      .filter(clocking => clocking.dateClocking.split('-')[1] == this.monthSelected)
+      .sort((n1, n2) => n2.numRefClocking - n1.numRefClocking)[0];
+      if (lastRestOfSalaryForCurrentMonth) this.restOfSalaryForCurrentMonth = lastRestOfSalaryForCurrentMonth.restOfSalary;
    
       this.minutePartList = [];
       if (this.clockingsListCopieForCalculTotalClockingLate.length > 0) {
         this.clockingsListCopieForCalculTotalClockingLate.forEach(clocking => {
-            this.calculTotalClockingLate(clocking.timeClocking);
+            this.calculateTotalClockingLate(clocking.timeClocking);
         })
       } else {
         this.totalClockingLate = 0;
@@ -148,6 +166,8 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
       if (this.clockingsList.length > 0) {
         this.clockingsList.forEach(clocking => {
           this.getDayFromDateClocking(clocking);
+          this.calculateTotalCostWorkAddedHours(clocking);
+          this.calculateTotalAddedHoursWorked(clocking);
         })
       }
 
@@ -159,7 +179,7 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
     document.body.scrollTop = document.documentElement.scrollTop = 0;
   }
 
-  calculTotalClockingLate(timeClocking: string) {
+  calculateTotalClockingLate(timeClocking: string) {
     if (!timeClocking || !/^\d{2}:\d{2}$/.test(timeClocking)) return;
 
     // Helper: HH:MM → minutes
@@ -200,9 +220,9 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
     if (this.sumClockingLate < 60) {
       this.totalClockingLateByHoursMinute = '';
     } else {
-      const hours = Math.floor(this.sumClockingLate / 60);
-      const minutes = this.sumClockingLate % 60;
-      this.totalClockingLateByHoursMinute = `${hours}H ${minutes}Min`;
+      this.hours = Math.floor(this.sumClockingLate / 60);
+      this.minutes = this.sumClockingLate % 60;
+      this.totalClockingLateByHoursMinute = `${this.hours}H ${this.minutes}Min`;
     }
   }
 
@@ -214,6 +234,25 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
     this.currentYear = d.getFullYear();
   }
 
+  calculateTotalCostWorkAddedHours(clocking: Clocking) {
+    if (clocking.costWorkAddedHoursByday) {
+      this.totalCostWorkAddedHours += clocking.costWorkAddedHoursByday;
+    }
+  }
+
+  calculateTotalAddedHoursWorked(clocking: Clocking) {
+    if (clocking.nbrHoursWorked) {
+      this.totalAddedHoursWorked += clocking.nbrHoursWorked;
+    }
+  }
+
+  formatToDTMill(value: number): string {
+    const thousands = Math.floor(value / 1000);
+    const rest = value % 1000;
+
+    return `${thousands}DT${rest.toString().padStart(3, '0')}Mill`;
+  }
+
   newClocking() {  
     let config: MatDialogConfig = {panelClass: "dialog-responsive"}
     const dialogRef = this.dialogService.open(ClockingFormForDesktopComponent, config);
@@ -223,6 +262,7 @@ export class ClockingsForDesktopComponent implements OnInit, OnDestroy {
     dialogRef.componentInstance.currentMonthAndYearForVacation = this.currentMonthAndYearForVacation;
     dialogRef.componentInstance.monthSelected = this.monthSelected;
     dialogRef.componentInstance.lastClockingFromList = this.lastClockingFromList;
+    dialogRef.componentInstance.restOfSalaryForCurrentMonth = this.restOfSalaryForCurrentMonth;
   }
 
   editClocking(clocking?: Clocking) {

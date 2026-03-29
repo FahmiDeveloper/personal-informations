@@ -7,8 +7,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 
-import { SerieDetailsWithSeasonsDesktopComponent } from './serie-details-with-seasons-desktop/serie-details-with-seasons-desktop.component';
-import { SerieFormDesktopComponent } from './serie-form-desktop/serie-form-desktop.component';
+import { SerieSeasonsForDesktopComponent } from './serie-seasons-for-desktop/serie-seasons-for-desktop.component';
+import { SerieFormForDesktopComponent } from './serie-form-for-desktop/serie-form-for-desktop.component';
 
 import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
@@ -29,9 +29,8 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
   seriesListCopie: Serie[] = [];
   allSeries: Serie[] = [];
   listSeasonsByParentSerieKey: Serie[] = [];
-
+  duplicatedSeriesList: Serie[] = [];
   p = 1;
-
   serieName = '';
   statusId: number;
   sortByDesc = true;
@@ -39,16 +38,20 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
   dislike = false;
   nbrSeriesToCheckToday = 0;
   nbrSeriesNotChecked = 0;
+  nbrDuplicatedSeries = 0;
   showSeriesNotChecked = false;
+  showDuplicatedSeries = false;
   itemsPerPage: number;
+  loading = true;
 
   menuTopLeftPosition = { x: '0', y: '0' }
 
-  @ViewChild(MatMenuTrigger, { static: true }) matMenuTrigger: MatMenuTrigger;
+  @ViewChild('menuTrigger') matMenuTrigger!: MatMenuTrigger;
 
-  subscriptionForGetAllSeries: Subscription;
-  subscriptionForGetAllSeriesForSelect: Subscription;
-  subscriptionForGetAllSeriesNotChecked: Subscription;
+  subForGetAllSeries: Subscription;
+  subForGetAllSeriesForSelect: Subscription;
+  subForGetAllSeriesNotChecked: Subscription;
+  subForGetAllDuplicatedSeries: Subscription;
 
   statusSeries: StatusSeries[] = [
     { id: 1, status: 'On hold' },
@@ -70,13 +73,15 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.itemsPerPage = window.innerWidth <= 1366 ? 15 : 16;
+    this.loading = true;
     this.getAllSeries();
     this.getAllSeriesForSelect();
     this.getAllSeriesNotChecked();
+    this.getAllDuplicatedSeries();
   }
 
   getAllSeries() {
-    this.subscriptionForGetAllSeries = this.serieService
+    this.subForGetAllSeries = this.serieService
       .getAll()
       .subscribe((series: Serie[]) => {
         this.seriesListCopie = series.sort((n1, n2) => n2.numRefSerie - n1.numRefSerie);
@@ -129,12 +134,12 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
         }
 
         else this.seriesList = series.filter(serie => serie.isFirst == true).sort((n1, n2) => n2.numRefSerie - n1.numRefSerie);
-
+        this.loading = false;
       });
   }
 
   getAllSeriesForSelect() {
-    this.subscriptionForGetAllSeriesForSelect = this.serieService
+    this.subForGetAllSeriesForSelect = this.serieService
       .getAll()
       .subscribe((series: Serie[]) => {
         this.nbrSeriesToCheckToday = series.filter(serie => serie.statusId == 1 && serie.checkDate && serie.checkDate == moment().format('YYYY-MM-DD') &&
@@ -144,12 +149,75 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
   }
 
   getAllSeriesNotChecked() {
-    this.subscriptionForGetAllSeriesNotChecked = this.serieService
+    this.subForGetAllSeriesNotChecked = this.serieService
       .getAll()
       .subscribe((series: Serie[]) => {
         this.nbrSeriesNotChecked = series.filter(serie => serie.statusId == 1 && serie.checkDate && serie.checkDate < moment().format('YYYY-MM-DD')).length;
         this.cdRef.detectChanges();
       })
+  }
+
+  getAllDuplicatedSeries() {
+    this.seriesList = [];
+    this.duplicatedSeriesList = [];
+    this.nbrDuplicatedSeries = 0;
+
+    this.subForGetAllDuplicatedSeries = this.serieService.getAll().subscribe((series: Serie[]) => {
+      const defaultSeries = series.filter(s => s.isFirst);
+      const duplicatedResult = this.getDuplicatedSeries(defaultSeries);
+
+      this.duplicatedSeriesList = duplicatedResult.list;
+      this.nbrDuplicatedSeries = duplicatedResult.count;
+
+      this.updateSeriesList();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getDuplicatedSeries(series: Serie[]): { list: Serie[]; count: number } {
+    const serieMap = new Map<string, Serie[]>();
+    const result: Serie[] = [];
+    let duplicationCount = 0;
+
+    series.forEach(serie => {
+      const key = serie.nameSerie?.trim();
+
+      if (!key) {
+        return;
+      }
+
+      const list = serieMap.get(key) || [];
+      list.push(serie);
+      serieMap.set(key, list);
+    });
+
+    serieMap.forEach(list => {
+      if (list.length > 1) {
+        duplicationCount++;     // ✅ one duplicated serie
+        result.push(...list);   // duplicates grouped together
+      }
+    });
+
+    return { list: result, count: duplicationCount };
+  }
+
+  onDuplicatedToggle() {
+    this.updateSeriesList();
+  }
+
+  updateSeriesList() {
+    if (this.showDuplicatedSeries) {
+      this.seriesList = this.duplicatedSeriesList;
+      this.seriesList = this.seriesList.sort((a, b) => {
+        const nameCompare = a.nameSerie.localeCompare(b.nameSerie);
+
+        if (nameCompare !== 0) return nameCompare; // group by name first
+
+        return b.numRefSerie - a.numRefSerie; // then sort inside group
+      });
+    } else {
+      this.getAllSeries();
+    }
   }
 
   OnPageChange() {
@@ -161,20 +229,20 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
       .filter(serie => (serie.key == serieSelected.key) || (serie.parentSerieKey == serieSelected.key))
       .sort((n1, n2) => n1.priority - n2.priority);
 
-    const dialogRef = this.dialogService.open(SerieDetailsWithSeasonsDesktopComponent, { width: '1150px' });
+    const dialogRef = this.dialogService.open(SerieSeasonsForDesktopComponent, { width: '1150px' });
     dialogRef.componentInstance.serie = serieSelected;
     dialogRef.componentInstance.allSeries = this.allSeries;
     dialogRef.componentInstance.listSeasonsByParentSerieKey = this.listSeasonsByParentSerieKey;
   }
 
   newSerie() {
-    const dialogRef = this.dialogService.open(SerieFormDesktopComponent, { width: '500px', data: { movie: {} } });
+    const dialogRef = this.dialogService.open(SerieFormForDesktopComponent, { width: '500px', data: { movie: {} } });
     dialogRef.componentInstance.arraySeries = this.seriesListCopie;
     dialogRef.componentInstance.allSeries = this.allSeries;
   }
 
   editSerie(serie?: Serie) {
-    const dialogRef = this.dialogService.open(SerieFormDesktopComponent, { width: '500px' });
+    const dialogRef = this.dialogService.open(SerieFormForDesktopComponent, { width: '500px' });
     dialogRef.componentInstance.serie = serie;
     dialogRef.componentInstance.allSeries = this.allSeries;
   }
@@ -243,9 +311,10 @@ export class SeriesForDesktopComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllSeries.unsubscribe();
-    this.subscriptionForGetAllSeriesForSelect.unsubscribe();
-    this.subscriptionForGetAllSeriesNotChecked.unsubscribe();
+    this.subForGetAllSeries.unsubscribe();
+    this.subForGetAllSeriesForSelect.unsubscribe();
+    this.subForGetAllSeriesNotChecked.unsubscribe();
+    this.subForGetAllDuplicatedSeries.unsubscribe();
   }
 
 }

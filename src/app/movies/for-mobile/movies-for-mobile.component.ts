@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 
-import { MovieDetailsWithPartsMobileComponent } from './movie-details-with-parts-mobile/movie-details-with-parts-mobile.component';
-import { MovieFormMobileComponent } from './movie-form-mobile/movie-form-mobile.component';
+import { MoviePartsForMobileComponent } from './movie-parts-for-mobile/movie-parts-for-mobile.component';
+import { MovieFormForMobileComponent } from './movie-form-for-mobile/movie-form-for-mobile.component';
 
 import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
@@ -28,20 +28,23 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
   moviesListCopie: Movie[] = [];
   allMovies: Movie[] = [];
   listPartsByParentFilmKey: Movie[] = [];
-
+  duplicatedMoviesList: Movie[] = [];
   p = 1;
-
   movieName = '';
   statusId: number;
   sortByDesc = true;
   optionSelected: number;
   nbrMoviesToCheckToday = 0;
   nbrMoviesNotChecked = 0;
+  nbrDuplicatedMovies = 0;
   showMoviesNotChecked = false;
+  showDuplicatedMovies = false;
+  loading = true;
 
-  subscriptionForGetAllMovies: Subscription;
-  subscriptionForGetAllMoviesForSelect: Subscription;
-  subscriptionForGetAllMoviesNotChecked: Subscription;
+  subForGetAllMovies: Subscription;
+  subForGetAllMoviesForSelect: Subscription;
+  subForGetAllMoviesNotChecked: Subscription;
+  subForGetAllDupMovies: Subscription;
 
   statusMovies: StatusMovies[] = [
     { id: 1, status: 'On hold' },
@@ -62,13 +65,15 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.loading = true;
     this.getAllMovies();
     this.getAllMoviesForSelect();
     this.getAllMoviesNotChecked();
+    this.getAllDuplicatedMovies();
   }
 
   getAllMovies() {
-    this.subscriptionForGetAllMovies = this.movieService
+    this.subForGetAllMovies = this.movieService
       .getAll()
       .subscribe((movies: Movie[]) => {
         this.moviesListCopie = movies.sort((n1, n2) => n2.numRefMovie - n1.numRefMovie);
@@ -111,11 +116,13 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
         }
 
         else this.moviesList = movies.filter(movie => movie.isFirst == true).sort((n1, n2) => n2.numRefMovie - n1.numRefMovie);
+
+        this.loading = false;
       });
   }
 
   getAllMoviesForSelect() {
-    this.subscriptionForGetAllMoviesForSelect = this.movieService
+    this.subForGetAllMoviesForSelect = this.movieService
       .getAll()
       .subscribe((movies: Movie[]) => {
         this.nbrMoviesToCheckToday = movies.filter(movie => movie.statusId == 1 && movie.checkDate && movie.checkDate == moment().format('YYYY-MM-DD')).length;
@@ -124,12 +131,75 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
   }
 
   getAllMoviesNotChecked() {
-    this.subscriptionForGetAllMoviesNotChecked = this.movieService
+    this.subForGetAllMoviesNotChecked = this.movieService
       .getAll()
       .subscribe((movies: Movie[]) => {
         this.nbrMoviesNotChecked = movies.filter(movie => movie.statusId == 1 && movie.checkDate && movie.checkDate < moment().format('YYYY-MM-DD')).length;
         this.cdRef.detectChanges();
       })
+  }
+
+  getAllDuplicatedMovies() {
+    this.moviesList = [];
+    this.duplicatedMoviesList = [];
+    this.nbrDuplicatedMovies = 0;
+
+    this.subForGetAllDupMovies = this.movieService.getAll().subscribe((movies: Movie[]) => {
+      const defaultMovies = movies.filter(m => m.isFirst);
+      const duplicatedResult = this.getDuplicatedMovies(defaultMovies);
+
+      this.duplicatedMoviesList = duplicatedResult.list;
+      this.nbrDuplicatedMovies = duplicatedResult.count;
+
+      this.updateMoviesList();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getDuplicatedMovies(movies: Movie[]): { list: Movie[]; count: number } {
+    const movieMap = new Map<string, Movie[]>();
+    const result: Movie[] = [];
+    let duplicationCount = 0;
+
+    movies.forEach(movie => {
+      const key = movie.nameMovie?.trim();
+
+      if (!key) {
+        return;
+      }
+
+      const list = movieMap.get(key) || [];
+      list.push(movie);
+      movieMap.set(key, list);
+    });
+
+    movieMap.forEach(list => {
+      if (list.length > 1) {
+        duplicationCount++;      // ✅ one duplicated movie group
+        result.push(...list);    // duplicates stay together
+      }
+    });
+
+    return { list: result, count: duplicationCount };
+  }
+  
+  onDuplicatedToggle() {
+    this.updateMoviesList();
+  }
+
+  updateMoviesList() {
+    if (this.showDuplicatedMovies) {
+      this.moviesList = this.duplicatedMoviesList;
+      this.moviesList = this.moviesList.sort((a, b) => {
+        const nameCompare = a.nameMovie.localeCompare(b.nameMovie);
+
+        if (nameCompare !== 0) return nameCompare; // group by name first
+
+        return b.numRefMovie - a.numRefMovie; // then sort inside group
+      });
+    } else {
+      this.getAllMovies();
+    }
   }
 
   OnPageChange(elem: HTMLElement) {
@@ -141,7 +211,7 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
       .filter(movie => (movie.key == movieSelected.key) || (movie.parentFilmKey == movieSelected.key))
       .sort((n1, n2) => n1.priority - n2.priority);
 
-    const dialogRef = this.dialogService.open(MovieDetailsWithPartsMobileComponent, {
+    const dialogRef = this.dialogService.open(MoviePartsForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw'
@@ -152,7 +222,7 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
   }
 
   newMovie() {
-    const dialogRef = this.dialogService.open(MovieFormMobileComponent, {
+    const dialogRef = this.dialogService.open(MovieFormForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw',
@@ -163,7 +233,7 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
   }
 
   editMovie(movie?: Movie) {
-    const dialogRef = this.dialogService.open(MovieFormMobileComponent, {
+    const dialogRef = this.dialogService.open(MovieFormForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw'
@@ -228,9 +298,10 @@ export class MoviesForMobileComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllMovies.unsubscribe();
-    this.subscriptionForGetAllMoviesForSelect.unsubscribe();
-    this.subscriptionForGetAllMoviesNotChecked.unsubscribe();
+    this.subForGetAllMovies.unsubscribe();
+    this.subForGetAllMoviesForSelect.unsubscribe();
+    this.subForGetAllMoviesNotChecked.unsubscribe();
+    this.subForGetAllDupMovies.unsubscribe();
   }
 
 }
