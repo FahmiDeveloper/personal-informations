@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 
-import { SerieDetailsWithSeasonsMobileComponent } from './serie-details-with-seasons-mobile/serie-details-with-seasons-mobile.component';
-import { SerieFormMobileComponent } from './serie-form-mobile/serie-form-mobile.component';
+import { SerieSeasonsForMobileComponent } from './serie-seasons-for-mobile/serie-seasons-for-mobile.component';
+import { SerieFormForMobileComponent } from './serie-form-for-mobile/serie-form-for-mobile.component';
 
 import { AuthService } from '../../shared/services/auth.service';
 import { UserService } from '../../shared/services/user.service';
@@ -28,20 +28,23 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
   seriesListCopie: Serie[] = [];
   allSeries: Serie[] = [];
   listSeasonsByParentSerieKey: Serie[] = [];
-
+  duplicatedSeriesList: Serie[] = [];
   p = 1;
-
   serieName = '';
   statusId: number;
   sortByDesc = true;
   optionSelected: number;
   nbrSeriesToCheckToday = 0;
   nbrSeriesNotChecked = 0;
+  nbrDuplicatedSeries = 0;
   showSeriesNotChecked = false;
+  showDuplicatedSeries = false;
+  loading = true;
 
-  subscriptionForGetAllSeries: Subscription;
-  subscriptionForGetAllSeriesForSelect: Subscription;
-  subscriptionForGetAllSeriesNotChecked: Subscription;
+  subForGetAllSeries: Subscription;
+  subForGetAllSeriesForSelect: Subscription;
+  subForGetAllSeriesNotChecked: Subscription;
+  subForGetAllDuplicatedSeries: Subscription;
 
   statusSeries: StatusSeries[] = [
     { id: 1, status: 'On hold' },
@@ -62,13 +65,15 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.loading = true;
     this.getAllSeries();
     this.getAllSeriesForSelect();
     this.getAllSeriesNotChecked();
+    this.getAllDuplicatedSeries();
   }
 
   getAllSeries() {
-    this.subscriptionForGetAllSeries = this.serieService
+    this.subForGetAllSeries = this.serieService
       .getAll()
       .subscribe(series => {
         this.seriesListCopie = series.sort((n1, n2) => n2.numRefSerie - n1.numRefSerie);
@@ -112,12 +117,12 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
         }
 
         else this.seriesList = series.filter(serie => serie.isFirst == true).sort((n1, n2) => n2.numRefSerie - n1.numRefSerie);
-
+        this.loading = false;
       });
   }
 
   getAllSeriesForSelect() {
-    this.subscriptionForGetAllSeriesForSelect = this.serieService
+    this.subForGetAllSeriesForSelect = this.serieService
       .getAll()
       .subscribe((series: Serie[]) => {
         this.nbrSeriesToCheckToday = series.filter(serie => serie.statusId == 1 && serie.checkDate && serie.checkDate == moment().format('YYYY-MM-DD') &&
@@ -127,12 +132,68 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
   }
 
   getAllSeriesNotChecked() {
-    this.subscriptionForGetAllSeriesNotChecked = this.serieService
+    this.subForGetAllSeriesNotChecked = this.serieService
       .getAll()
       .subscribe((series: Serie[]) => {
         this.nbrSeriesNotChecked = series.filter(serie => serie.statusId == 1 && serie.checkDate && serie.checkDate < moment().format('YYYY-MM-DD')).length;
         this.cdRef.detectChanges();
       })
+  }
+
+  getAllDuplicatedSeries() {
+    this.seriesList = [];
+    this.duplicatedSeriesList = [];
+    this.nbrDuplicatedSeries = 0;
+
+    this.subForGetAllDuplicatedSeries = this.serieService.getAll().subscribe((series: Serie[]) => {
+      const defaultSeries = series.filter(s => s.isFirst);
+      const duplicatedResult = this.getDuplicatedSeries(defaultSeries);
+
+      this.duplicatedSeriesList = duplicatedResult.list;
+      this.nbrDuplicatedSeries = duplicatedResult.count;
+
+      this.updateSeriesList();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getDuplicatedSeries(series: Serie[]): { list: Serie[]; count: number } {
+    const serieMap = new Map<string, Serie[]>();
+    const result: Serie[] = [];
+    let duplicationCount = 0;
+
+    series.forEach(serie => {
+      const key = serie.nameSerie?.trim();
+
+      if (!key) {
+        return;
+      }
+
+      const list = serieMap.get(key) || [];
+      list.push(serie);
+      serieMap.set(key, list);
+    });
+
+    serieMap.forEach(list => {
+      if (list.length > 1) {
+        duplicationCount++;     // ✅ one duplicated serie
+        result.push(...list);   // duplicates grouped together
+      }
+    });
+
+    return { list: result, count: duplicationCount };
+  }
+
+  onDuplicatedToggle() {
+    this.updateSeriesList();
+  }
+
+  updateSeriesList() {
+    if (this.showDuplicatedSeries) {
+      this.seriesList = this.duplicatedSeriesList;
+    } else {
+      this.getAllSeries();
+    }
   }
 
   OnPageChange(elem: HTMLElement) {
@@ -144,7 +205,7 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
       .filter(serie => (serie.key == serieSelected.key) || (serie.parentSerieKey == serieSelected.key))
       .sort((n1, n2) => n1.priority - n2.priority);
 
-    const dialogRef = this.dialogService.open(SerieDetailsWithSeasonsMobileComponent, {
+    const dialogRef = this.dialogService.open(SerieSeasonsForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw'
@@ -155,7 +216,7 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
   }
 
   newSerie() {
-    const dialogRef = this.dialogService.open(SerieFormMobileComponent, {
+    const dialogRef = this.dialogService.open(SerieFormForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw',
@@ -166,7 +227,7 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
   }
 
   editSerie(serie?: Serie) {
-    const dialogRef = this.dialogService.open(SerieFormMobileComponent, {
+    const dialogRef = this.dialogService.open(SerieFormForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw'
@@ -231,8 +292,9 @@ export class SeriesForMobileComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllSeries.unsubscribe();
-    this.subscriptionForGetAllSeriesForSelect.unsubscribe();
-    this.subscriptionForGetAllSeriesNotChecked.unsubscribe();
+    this.subForGetAllSeries.unsubscribe();
+    this.subForGetAllSeriesForSelect.unsubscribe();
+    this.subForGetAllSeriesNotChecked.unsubscribe();
+    this.subForGetAllDuplicatedSeries.unsubscribe();
   }
 }

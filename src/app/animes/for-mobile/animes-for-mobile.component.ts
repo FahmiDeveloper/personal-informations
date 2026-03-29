@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 
-import { AnimeDetailsWithSeasonsMobileComponent } from './anime-details-with-seasons-mobile/anime-details-with-seasons-mobile.component';
-import { AnimeFormMobileComponent } from './anime-form-mobile/anime-form-mobile.component';
+import { AnimeSeasonsForMobileComponent } from './anime-seasons-for-mobile/anime-seasons-for-mobile.component';
+import { AnimeFormForMobileComponent } from './anime-form-for-mobile/anime-form-for-mobile.component';
 
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { UserService } from 'src/app/shared/services/user.service';
@@ -28,9 +28,8 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   animesListCopie: Anime[] = [];
   allAnimes: Anime[] = [];
   listSeasonsByParentAnimeKey: Anime[] = [];
-
+  duplicatedAnimesList: Anime[] = [];
   p = 1;
-
   animeNameJap = '';
   animeNameEng = '';
   statusId: number;
@@ -38,12 +37,16 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   optionSelected: number;
   dislike = false;
   nbrAnimesToCheckToday = 0;
+  nbrDuplicatedAnimes = 0;
   nbrAnimesNotChecked = 0;
   showAnimesNotChecked = false;
+  showDuplicatedAnimes = false;
+  loading = true;
 
-  subscriptionForGetAllAnimes: Subscription;
-  subscriptionForGetAllAnimesForSelect: Subscription;
-  subscriptionForGetAllAnimesNotChecked: Subscription;
+  subsForGetAllAnimes: Subscription;
+  subsForGetAllAnimesForSelect: Subscription;
+  subsForGetAllAnimesNotChecked: Subscription;
+  subsForGetAllDuplicatedAnimes: Subscription;
 
   statusAnimes: StatusAnimes[] = [
     { id: 1, status: 'On hold' },
@@ -64,13 +67,15 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.loading = true;
     this.getAllAnimes();
     this.getAllAnimesForSelect();
     this.getAllAnimesNotChecked();
+    this.getAllDuplicatedAnimes();
   }
 
   getAllAnimes() {
-    this.subscriptionForGetAllAnimes = this.animeService
+    this.subsForGetAllAnimes = this.animeService
       .getAll()
       .subscribe(animes => {
         this.animesListCopie = animes.sort((n1, n2) => n2.numRefAnime - n1.numRefAnime);
@@ -122,12 +127,12 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
         this.animesList.forEach(anime => {
           this.checkIfAnimeHaveSeasons(anime);
         })
-
+        this.loading = false;
       });
   }
 
   getAllAnimesForSelect() {
-    this.subscriptionForGetAllAnimesForSelect = this.animeService
+    this.subsForGetAllAnimesForSelect = this.animeService
       .getAll()
       .subscribe((animes: Anime[]) => {
         this.nbrAnimesToCheckToday = animes.filter(anime => anime.statusId == 1 && anime.checkDate && anime.checkDate == moment().format('YYYY-MM-DD') &&
@@ -137,12 +142,73 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   }
 
   getAllAnimesNotChecked() {
-    this.subscriptionForGetAllAnimesNotChecked = this.animeService
+    this.subsForGetAllAnimesNotChecked = this.animeService
       .getAll()
       .subscribe((animes: Anime[]) => {
         this.nbrAnimesNotChecked = animes.filter(anime => anime.statusId == 1 && anime.checkDate && anime.checkDate < moment().format('YYYY-MM-DD')).length;
         this.cdRef.detectChanges();
       })
+  }
+
+  getAllDuplicatedAnimes() {
+    this.animesList = [];
+    this.duplicatedAnimesList = [];
+    this.nbrDuplicatedAnimes = 0;
+
+    this.subsForGetAllDuplicatedAnimes = this.animeService.getAll().subscribe((animes: Anime[]) => {
+      const defaultAnimes = animes.filter(a => a.isFirst);
+      const duplicatedResult = this.getDuplicatedAnimes(defaultAnimes);
+
+      this.duplicatedAnimesList = duplicatedResult.list;
+      this.nbrDuplicatedAnimes = duplicatedResult.count;
+
+      this.updateAnimesList();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getDuplicatedAnimes(animes: Anime[]): { list: Anime[]; count: number } {
+    const animeMap = new Map<string, Anime[]>();
+    const result: Anime[] = [];
+    let duplicationCount = 0;
+
+    animes.forEach(anime => {
+      const key = anime.nameAnime && anime.nameAnime !== '-'? anime.nameAnime.trim() : anime.nameAnimeEng?.trim();
+      if (!key) {
+        return;
+      }
+      const list = animeMap.get(key) || [];
+      list.push(anime);
+      animeMap.set(key, list);
+    });
+
+    animeMap.forEach(list => {
+      if (list.length > 1) {
+        duplicationCount++;        // ✅ one duplicated group
+        result.push(...list);      // keep copies together
+      }
+    });
+
+    return { list: result, count: duplicationCount };
+  }
+
+  onDuplicatedToggle() {
+    this.updateAnimesList();
+  }
+
+  updateAnimesList() {
+    if (this.showDuplicatedAnimes) {
+      this.animesList = this.duplicatedAnimesList;
+      this.animesList = this.animesList.sort((a, b) => {
+        const nameCompare = a.nameAnime.localeCompare(b.nameAnime);
+
+        if (nameCompare !== 0) return nameCompare; // group by name first
+
+        return b.numRefAnime - a.numRefAnime; // then sort inside group
+      });
+    } else {
+      this.getAllAnimes();
+    }
   }
 
   checkIfAnimeHaveSeasons(animeData: Anime) {
@@ -162,7 +228,7 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
       .filter(anime => (anime.key == animeSelected.key) || (anime.parentAnimeKey == animeSelected.key))
       .sort((n1, n2) => n1.priority - n2.priority);
 
-    const dialogRef = this.dialogService.open(AnimeDetailsWithSeasonsMobileComponent, {
+    const dialogRef = this.dialogService.open(AnimeSeasonsForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw'
@@ -173,7 +239,7 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   }
 
   newAnime() {
-    const dialogRef = this.dialogService.open(AnimeFormMobileComponent, {
+    const dialogRef = this.dialogService.open(AnimeFormForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw',
@@ -184,7 +250,7 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   }
 
   editAnime(anime?: Anime) {
-    const dialogRef = this.dialogService.open(AnimeFormMobileComponent, {
+    const dialogRef = this.dialogService.open(AnimeFormForMobileComponent, {
       width: '98vw',
       height: '75vh',
       maxWidth: '100vw'
@@ -264,9 +330,11 @@ export class AnimesForMobileComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionForGetAllAnimes.unsubscribe();
-    this.subscriptionForGetAllAnimesForSelect.unsubscribe();
-    this.subscriptionForGetAllAnimesNotChecked.unsubscribe();
+    this.subsForGetAllAnimes.unsubscribe();
+    this.subsForGetAllAnimesForSelect.unsubscribe();
+    this.subsForGetAllAnimesNotChecked.unsubscribe();
+    this.subsForGetAllDuplicatedAnimes.unsubscribe();
   }
+
 
 }

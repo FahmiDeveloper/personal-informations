@@ -1,0 +1,104 @@
+<div mat-dialog-title class="dialog-title">
+  <h3 *ngIf="!serie.key" mat-dialog-title class="text-application">New serie</h3>
+  <h3 *ngIf="serie.key" mat-dialog-title class="text-application">Edit serie</h3>
+</div>
+
+<mat-dialog-content>
+  <form (ngSubmit)="save()" #f="ngForm">
+
+    <mat-checkbox name="isFirst" [(ngModel)]="serie.isFirst" class="mat-checkbox-layout">
+      <span class="text-application">First</span>
+    </mat-checkbox>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Name</span></mat-placeholder>
+      <input matInput type="text" [(ngModel)]="serie.nameSerie" name="nameSerie" class="text-application" required>
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Year</span></mat-placeholder>
+      <input matInput type="number" [(ngModel)]="serie.year" name="year" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Status</span></mat-placeholder>
+      <mat-select [(ngModel)]="serie.statusId" name="statusId" class="text-application" required>
+        <mat-option value=""></mat-option>
+        <mat-option *ngFor="let statusSerie of statusSeries" [value]="statusSerie.id">
+          <span class="text-application">{{statusSerie.status}}</span>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="serie.statusId && serie.statusId == 1" color="accent">
+      <mat-placeholder class="text-application"><span>Check</span></mat-placeholder>
+      <input matInput type="date" [(ngModel)]="serie.checkDate" name="checkDate" class="text-application">
+    </mat-form-field>
+
+    <mat-checkbox *ngIf="serie.statusId && serie.statusId == 3" name="notLiked" [(ngModel)]="serie.notLiked"
+      class="mat-checkbox-layout">
+      <span class="text-application">Dislike</span>
+    </mat-checkbox>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Season</span></mat-placeholder>
+      <input matInput type="number" [(ngModel)]="serie.season" name="season" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Priority</span></mat-placeholder>
+      <input matInput type="number" [(ngModel)]="serie.priority" name="priority" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Current episode</span></mat-placeholder>
+      <input matInput type="number" [(ngModel)]="serie.currentEpisode" name="currentEpisode" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Total episodes</span></mat-placeholder>
+      <input matInput type="number" [(ngModel)]="serie.totalEpisodes" name="totalEpisodes" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent" *ngIf="serie.season && serie.season > 1">
+      <mat-placeholder class="text-application"><span>Parent Serie</span></mat-placeholder>
+      <input type="text" matInput [matAutocomplete]="auto" (keyup)="filterByParentName($event)"
+        name="parentSerieName" [(ngModel)]="parentSerieName" class="text-application">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let serie of seasonSeriesList" [value]="serie.key" (click)="getParentSerieKey(serie.key)"
+          class="text-application">
+          <span class="text-application">{{serie.nameSerie}}</span>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Path</span></mat-placeholder>
+      <input matInput type="text" [(ngModel)]="serie.path" name="path" class="text-application">
+    </mat-form-field>
+
+    <mat-form-field color="accent">
+      <mat-placeholder class="text-application"><span>Note</span></mat-placeholder>
+      <textarea matInput type="text" [(ngModel)]="serie.note" name="note" rows="4" cols="40"
+        class="text-application"></textarea>
+    </mat-form-field>
+
+    <button type="button" mat-button (click)="fileInput.click()" class="text-application">Choose picture</button>
+    <input hidden (change)="onFileChanged($event)" #fileInput type="file" id="file" accept=".jpeg,.jpg,.png,.svg">
+    <br *ngIf="progressValue"><br *ngIf="progressValue">
+    <div *ngIf="progressValue | async as val" class="progress-background">
+      <div class="progress-meter" [ngStyle]="{'width.%': val}"></div>
+      <span style="margin-left: 45%;">{{ val | number: '1.0-0' }}%</span>
+    </div>
+
+    <br *ngIf="progressValue">
+
+    <mat-dialog-actions>
+      <button mat-button type="submit" [disabled]="!f.valid" [mat-dialog-close]="1"
+        style="background:#FF5722;color: white;" class="text-application">Save</button>
+      <button mat-button type="button" (click)="close()" tabindex="-1" style="background:#607D8B;color: white;"
+        class="text-application">Cancel</button>
+    </mat-dialog-actions>
+
+  </form>
+</mat-dialog-content>

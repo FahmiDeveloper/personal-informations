@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 // import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Subscription } from 'rxjs';
 import firebase from 'firebase';
+import Swal from 'sweetalert2';
 
 import { AuthService } from '../shared/services/auth.service';
 import { UsersListService } from '../shared/services/list-users.service';
@@ -188,6 +189,29 @@ export class AppMobileComponent implements OnInit {
     } else {
       return notifDate.toLocaleDateString(); // Show full date after a week
     }
+  }
+
+  markAllAsDoed() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Mark all notifications as doed!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.value) {
+        this.allNotifNotDone.forEach(notif => {
+          notif.notifSubjectDone = true;
+          this.notificationService.update(notif.key, notif);
+        });
+        Swal.fire(
+          'Notifications marked as doed successfully',
+          '',
+          'success'
+        )
+      }
+    })
   }
 }
 

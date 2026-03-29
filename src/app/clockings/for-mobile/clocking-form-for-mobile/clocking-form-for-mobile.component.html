@@ -13,29 +13,39 @@
                 <mat-placeholder class="text-application"><span>Date</span></mat-placeholder>
                 <input matInput #input type="date" [(ngModel)]="clocking.dateClocking" name="dateClocking" class="text-application">
             </mat-form-field>
-
             &nbsp;&nbsp;
-
             <mat-form-field color="accent" style="width: 100px !important;">
                 <mat-placeholder class="text-application"><span>Time</span></mat-placeholder>
                 <input matInput #input type="time" [(ngModel)]="clocking.timeClocking" name="timeClocking" class="text-application">
             </mat-form-field>
 
-            <mat-form-field color="accent" class="text-application">
+            <mat-form-field color="accent" class="text-application" style="width: 150px !important;">
                 <mat-select placeholder="Subject" [(ngModel)]="clocking.subjectId" name="subjectId" class="text-application" (selectionChange)="selectSubject()">
                     <mat-option *ngFor="let subject of subjectList" [value]="subject.id">
                         <span class="text-application">{{subject.subjectName}}</span>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-
-            <mat-form-field color="accent">
+             &nbsp;&nbsp;
+            <mat-form-field color="accent" style="width: 100px !important;">
                 <mat-placeholder class="text-application"><span>Nbr</span></mat-placeholder>
                 <input matInput #input type="number" [(ngModel)]="clocking.clockingNbr" name="clockingNbr" class="text-application">
                 <mat-error *ngIf="f.invalid" class="text-application">{{getErrorMessage()}}</mat-error>
             </mat-form-field>
 
-            <div *ngIf="clocking.subjectId == 2" class="row">
+            <ng-container *ngIf="clocking.subjectId == 1 || clocking.subjectId == 2">
+                <mat-form-field color="accent" style="width: 100px !important;">
+                    <mat-placeholder class="text-application"><span>Cost one hour</span></mat-placeholder>
+                    <input matInput #input type="number" [(ngModel)]="clocking.costOneHour" name="costOneHour" class="text-application">
+                </mat-form-field>
+                &nbsp;&nbsp;
+                <mat-form-field color="accent" style="width: 100px !important;">
+                    <mat-placeholder class="text-application"><span>Nbr hours worked</span></mat-placeholder>
+                    <input matInput #input type="number" [(ngModel)]="clocking.nbrHoursWorked" name="nbrHoursWorked" class="text-application">
+                </mat-form-field>
+            </ng-container>
+
+            <div *ngIf="clocking.subjectId == 3" class="row">
                 <div class="col-md-6">
                   <mat-form-field color="accent">
                     <mat-placeholder class="text-application"><span>Date end vacation</span></mat-placeholder>
@@ -51,11 +61,17 @@
                     <mat-form-field color="accent" style="width: 60px;">
                       <input matInput #input type="number" [(ngModel)]="vacationLimitDays" name="restVacationDays" class="text-application">
                     </mat-form-field>day(s)
-                </span>
-                
+                </span>              
                 &nbsp;
-
                 <mat-icon style="color: #2196F3;" (click)="minimizeFromVacLimitDays()">minimize</mat-icon>
+            </div>
+
+            <div>
+                <span class="text-application" style="font-size: initial;">Rest of salary in {{ currentMonthAndYearForVacation }}:<br>
+                    <mat-form-field color="accent" style="width: 80px;">
+                        <input matInput #input type="number" [(ngModel)]="clocking.restOfSalary" name="restOfSalary" class="text-application">
+                    </mat-form-field>
+                </span>
             </div>
             
             <mat-form-field color="accent">

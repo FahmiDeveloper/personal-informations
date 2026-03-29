@@ -1,0 +1,1 @@
+export * from './serie-form-for-tablet.component';

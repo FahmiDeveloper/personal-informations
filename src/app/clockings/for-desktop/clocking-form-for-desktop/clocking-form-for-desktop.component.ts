@@ -26,17 +26,19 @@ export class ClockingFormForDesktopComponent implements OnInit {
   monthSelected: string ;
   showVacationLimitDays: boolean;
   lastClockingFromList: number;
+  restOfSalaryForCurrentMonth: number;
   
   formControl = new FormControl('', [Validators.required]);
 
   subjectList: SubjectList[] = [
-    {id: 1, subjectName: 'Work on sunday'},
-    {id: 2, subjectName: 'Take vacation'},
-    {id: 3, subjectName: 'Take one hour'},
-    {id: 4, subjectName: 'Take two hours'},
-    {id: 5, subjectName: 'Take three hours'},
-    {id: 6, subjectName: 'Work half day'},
-    {id: 7, subjectName: 'Public holiday'}  
+    {id: 1, subjectName: 'Work on Saturday'},
+    {id: 2, subjectName: 'Work on Sunday'},
+    {id: 3, subjectName: 'Take vacation'},
+    {id: 4, subjectName: 'Take one hour'},
+    {id: 5, subjectName: 'Take two hours'},
+    {id: 6, subjectName: 'Take three hours'},
+    {id: 7, subjectName: 'Work half day'},
+    {id: 8, subjectName: 'Public holiday'} 
   ];
 
   constructor(
@@ -55,6 +57,7 @@ export class ClockingFormForDesktopComponent implements OnInit {
       else {
         this.vacationLimitDays = this.lastClockingFromList; 
       }
+      this.clocking.restOfSalary = this.restOfSalaryForCurrentMonth;
     } 
     else {
       this.vacationLimitDays =  this.clocking.restVacationDays; 
@@ -64,8 +67,11 @@ export class ClockingFormForDesktopComponent implements OnInit {
   }
 
   save() {
+    if (this.clocking.costOneHour && this.clocking.nbrHoursWorked) {
+      this.clocking.costWorkAddedHoursByday = this.clocking.costOneHour * this.clocking.nbrHoursWorked;
+    }
     if (!this.clocking.key) {
-      if (this.clocking.subjectId == 2) {
+      if (this.clocking.subjectId == 3) {
         const start = new Date(this.clocking.dateClocking);
         const end = new Date(this.clocking.dateEndVaction);
         const dates = this.getDatesBetween(start, end);  
@@ -74,7 +80,7 @@ export class ClockingFormForDesktopComponent implements OnInit {
           this.clocking.dateClocking = dates[i];
           if (this.arrayClockings[0] && this.arrayClockings[0].numRefClocking) this.clocking.numRefClocking = this.arrayClockings[0].numRefClocking + (i + 1);
           if (this.arrayClockings[0] && (this.arrayClockings[0].restVacationDays || this.arrayClockings[0].restVacationDays === 0)) this.clocking.restVacationDays = this.arrayClockings[0].restVacationDays - (i + 1);
-          this.clocking.subjectId = 2;
+          this.clocking.subjectId = 3;
           this.clocking.timeClocking = '';
           this.clockingService.create(this.clocking);
         }
@@ -133,7 +139,7 @@ export class ClockingFormForDesktopComponent implements OnInit {
   }
 
   selectSubject() {
-    this.vacationLimitDays = this.clocking.subjectId == 6 ? this.vacationLimitDays - 0.5 : this.vacationLimitDays;
+    this.vacationLimitDays = this.clocking.subjectId == 7 ? this.vacationLimitDays - 0.5 : this.vacationLimitDays;
   }
 
 }

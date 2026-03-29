@@ -90,7 +90,12 @@ mat-divider {
 
 .notification-header .notification-view-all {
   font-size: 14px;
-  color: #999;
+}
+
+.notification-header .notification-mark-all {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
 }
 
 .notification-list {

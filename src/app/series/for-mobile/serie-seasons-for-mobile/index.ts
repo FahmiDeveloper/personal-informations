@@ -1,0 +1,1 @@
+export * from './serie-seasons-for-mobile.component';

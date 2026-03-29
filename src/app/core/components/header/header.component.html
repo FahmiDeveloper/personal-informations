@@ -67,6 +67,7 @@
                         <div class="notification-container text-application" cdkMenu>
                             <div class="notification-header">
                                 <h2>Notifications</h2>
+                                <a *ngIf="allNotifNotDone.length > 0" href="javascript:void(0)" class="notification-mark-all" (click)="markAllAsDoed()">Mark all as doed</a>
                                 <span class="notification-view-all">
                                     <a routerLink='/notifications' (click)="isOpenOverlayNotifs = false">View All</a>&nbsp;&nbsp;&nbsp;&nbsp;
                                     <i class="fa fa-times" aria-hidden="true" (click)="isOpenOverlayNotifs = false" [ngStyle]="{'cursor': isDesktop ? 'pointer' : ''}"></i>
@@ -116,7 +117,7 @@
                                             <span class="notification-date-time">
                                                 {{notification.date | date:'dd/MM/yyyy'}}&nbsp;{{notification.time}}<br>
                                                 <span class="notification-time">{{ getTimeAgo(notification.formatDate) }}</span>
-                                              </span>
+                                            </span>
                                         </div>
                                     </li>
                                 </ul>
