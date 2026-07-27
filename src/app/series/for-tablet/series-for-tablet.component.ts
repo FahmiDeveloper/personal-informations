@@ -5,7 +5,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { SerieSeasonsForTabletComponent } from './serie-seasons-for-tablet/serie-seasons-for-tablet.component';
 import { SerieFormForTabletComponent } from './serie-form-for-tablet/serie-form-for-tablet.component';

@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import * as moment from 'moment';
+import moment from 'moment';
 import Swal from 'sweetalert2';
 
 import { DebtService } from 'src/app/shared/services/debt.service';
