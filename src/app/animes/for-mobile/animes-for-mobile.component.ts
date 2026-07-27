@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { AnimeSeasonsForMobileComponent } from './anime-seasons-for-mobile/anime-seasons-for-mobile.component';
 import { AnimeFormForMobileComponent } from './anime-form-for-mobile/anime-form-for-mobile.component';

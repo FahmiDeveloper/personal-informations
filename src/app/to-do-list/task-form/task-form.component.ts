@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { Todo } from 'src/app/shared/models/to-do-list.model';
 

@@ -5,7 +5,7 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 
 import { forkJoin, Observable } from 'rxjs';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { AnimeService } from 'src/app/shared/services/anime.service';
 import { MovieService } from 'src/app/shared/services/movie.service';
@@ -240,7 +240,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.minutePartList = [];
     if (this.clockingsForLateCalc.length > 0) {
       this.clockingsForLateCalc.forEach(clocking => {
-          this.calculTotalClockingLate(clocking.timeClocking);
+          this.calculateTotalClockingLate(clocking.timeClocking);
       })
     } else {
       this.totalClockingLate = 0;
@@ -253,38 +253,34 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (lastClockingByCurrentMonth) this.vacationLimitDays = lastClockingByCurrentMonth.restVacationDays;
   }
 
-  calculTotalClockingLate(timeClocking: string) {
+  calculateTotalClockingLate(timeClocking: string) {
     if (!timeClocking || !/^\d{2}:\d{2}$/.test(timeClocking)) return;
 
-    // Helper: HH:MM → minutes
-    const timeToMinutes = (time: string): number => {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
+    // Helper: Get only the minutes part of the time
+    const getMinutesPart = (time: string): number => {
+      const [, minutes] = time.split(':').map(Number);
+      return minutes;
     };
 
-    const now = new Date();
-    const month = now.getMonth(); // 0 = Jan, 6 = July, 7 = August
+    // Helper: Check if time is after 08:00
+    const isAfterEight = (time: string): boolean => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours > 8 || (hours === 8 && minutes > 0);
+    };
 
-    const summerBaseTime = timeToMinutes('07:30');
-    const regularBaseTime = timeToMinutes('08:00');
-    const clockingTime = timeToMinutes(timeClocking);
+    const clockingMinutes = getMinutesPart(timeClocking);
 
     let lateMinutes = 0;
 
-    if (month === 6 || month === 7) {
-      // July or August
-      if (clockingTime > summerBaseTime) {
-        lateMinutes = clockingTime - summerBaseTime;
-      }
-    } else {
-      // Other months
-      if (clockingTime > regularBaseTime) {
-        lateMinutes = clockingTime - regularBaseTime;
-      }
+    // Only calculate late if clocking is after 08:00
+    if (isAfterEight(timeClocking)) {
+      lateMinutes = clockingMinutes;
     }
 
-    // Accumulate late minutes
+    // Push the new late minutes
     this.minutePartList.push(lateMinutes);
+    
+    // Recalculate total
     this.sumClockingLate = this.minutePartList.reduce((acc, curr) => acc + curr, 0);
 
     // Always keep total in minutes
@@ -292,7 +288,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Also provide hours/minutes format if >= 60
     if (this.sumClockingLate < 60) {
-      this.totalClockingLateByHoursMinute = '';
+      this.totalClockingLateByHoursMinute = this.sumClockingLate + ' Min';
     } else {
       this.hours = Math.floor(this.sumClockingLate / 60);
       this.minutes = this.sumClockingLate % 60;

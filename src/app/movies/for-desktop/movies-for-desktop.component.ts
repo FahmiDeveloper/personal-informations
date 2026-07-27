@@ -5,7 +5,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { MoviePartsForDesktopComponent } from './movie-parts-for-desktop/movie-parts-for-desktop.component';
 import { MovieFormForDesktopComponent } from './movie-form-for-desktop/movie-form-for-desktop.component';
