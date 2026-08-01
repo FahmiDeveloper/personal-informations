@@ -52,7 +52,7 @@ export class ClockingFormForDesktopComponent implements OnInit {
       this.clocking.timeClocking = moment().format('HH:mm');
 
       if (new Date(this.clocking.dateClocking).getDate() == 1) {
-        this.vacationLimitDays = this.lastClockingFromList + 1.75;
+        this.vacationLimitDays = this.lastClockingFromList + 2;
       }
       else {
         this.vacationLimitDays = this.lastClockingFromList; 
